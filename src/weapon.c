@@ -12,7 +12,8 @@
 int createWeaponList(weaponList *list)
 {
 	int i;
-	if(lista!=NULL)
+	int j;
+	if(list!=NULL)
 	{
 		for(i=0; i<weaponNumber; i++)
 		{
@@ -37,7 +38,7 @@ int createWeaponList(weaponList *list)
  */
 int getNewWeapon(weaponList *list, int weapon)
 {
-	if(lista!=NULL)
+	if(list!=NULL)
 	{
 		list->weapon[weapon].ative	= 1;
 		list->weapon[weapon].bar	= maxWeaponBar;
@@ -58,14 +59,14 @@ int nextWeapon(weaponList *list)
 	int i;
 	int backup;
 	for(i=backup=list->weaponInUse; i<weaponNumber; i++)
-		if(lista->weapon[i].ative)
+		if(list->weapon[i].ative)
 		{
 			list->weaponInUse=i;
 			break;
 		}
 	if(list->weaponInUse==backup)
 		for(i=0; i<weaponNumber; i++)
-			if(lista->weapon[i].ative)
+			if(list->weapon[i].ative)
 			{
 				list->weaponInUse=i;
 				break;
@@ -84,14 +85,14 @@ int previousWeapon(weaponList *list)
 	int i;
 	int backup;
 	for(i=backup=list->weaponInUse; i>=0; i--)
-		if(lista->weapon[i].ative)
+		if(list->weapon[i].ative)
 		{
 			list->weaponInUse=i;
 			break;
 		}
 	if(list->weaponInUse==backup)
 		for(i=weaponNumber-1; i>=0; i--)
-			if(lista->weapon[i].ative)
+			if(list->weapon[i].ative)
 			{
 				list->weaponInUse=i;
 				break;

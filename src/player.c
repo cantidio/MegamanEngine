@@ -24,7 +24,7 @@ int createMegaman(megaman *mega)
 		mega->yPulseMax		= 6;
 		mega->control		= 0;
 		mega->direction		= 1;
-		return createWeaponList(&mega->weapon);
+		return createWeaponList(&mega->weapons);
 	}
 	return 0;
 }
@@ -57,11 +57,11 @@ int normalEventsMegaman(megaman *mega)
 			}
 			else if(key[ARMAF])
 			{
-				nextWeapon(&mega->weapon);
+				nextWeapon(&mega->weapons);
 			}
 			else if(key[ARMAB])
 			{
-				previousWeapon(&mega->weapon);
+				previousWeapon(&mega->weapons);
 			}
 		}
 
@@ -71,5 +71,3 @@ int normalEventsMegaman(megaman *mega)
 	return 0;
 }
 
-
-#endif

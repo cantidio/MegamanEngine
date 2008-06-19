@@ -1,6 +1,7 @@
 #ifndef WEAPON
 
 #define WEAPON
+#include <stdio.h>
 //megaman 1
 #define	plasmaShot		0
 #define	boomerang		1
@@ -16,7 +17,7 @@
 #define	bubble			10
 #define	flashShot		11
 #define	grabBomb		12
-#define	sparkShot		13
+#define	sparrkShot		13
 #define	flameThower		14
 #define	leafShield		15
 #define	plataformer		16
@@ -31,7 +32,7 @@
 #define	shadowBlade		24
 
 #define weaponNumber		25
-#define	naxShots		6
+#define	maxShots		6
 #define maxWeaponBar		100
 
 typedef struct
