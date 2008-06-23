@@ -6,16 +6,20 @@
 #include "./background.h"
 #include "./control.h"
 #define MaxHealth 100
-
-#define animTeleport	0
-#define animArrive	1
-#define animStand	2
-#define animWalk	3
-#define animJump	4
-#define animFall	5
-#define animShotStand	6
-#define animShotInAir	7
-#define animSlide	8
+#define animStand		0
+#define animWalk		1
+#define animJump		2
+#define animFall		3
+#define animClimb		4
+#define animClimbEnd		5
+#define animShotStand		6
+#define animShotWalking		7
+#define animShotInAir		8
+#define animShotInLadder	9
+#define animTeleport		10
+#define animArrive		11
+#define animSlide		12
+#define animTwist		13
 
 typedef struct
 {
@@ -35,6 +39,7 @@ typedef struct
 	float			yPulseMax;
 	char			imortal;//se o megaman esta imortal
 	char 			control;//se o cara tem controle ou n
+	inputControl		controlDef;
 	char			direction;//direcao
 }megaman;
 

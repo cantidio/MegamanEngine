@@ -1,12 +1,18 @@
 #include "../include/control.h"
 
-
-int ATIRA	= KEY_Q;
-int PULA	= KEY_A;
-int ARMAF	= KEY_W;
-int ARMAB	= KEY_S;
-int START	= KEY_ENTER;
-int FRENTE	= KEY_RIGHT;
-int TRAZ	= KEY_LEFT;
-
-
+int createDefaultControl(inputControl *c)
+{
+	if(c!=NULL)
+	{
+		c->shot		= KEY_Q;
+		c->jump		= KEY_A;
+		c->weaponF	= KEY_W;
+		c->weaponB	= KEY_S;
+		c->start	= KEY_ENTER;
+		c->right	= KEY_RIGHT;
+		c->left		= KEY_LEFT;
+		c->down		= KEY_DOWN;
+		return 1;
+	}
+	return 0;
+}

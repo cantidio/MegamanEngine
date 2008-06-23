@@ -26,6 +26,7 @@ void init()//inicialização do allegro
 int main()
 {
 	megaman mega;
+	background bg;
 	BITMAP *buffer;	
 	init();
 	createMegaman(&mega);
@@ -35,8 +36,9 @@ int main()
 	while(!key[KEY_ESC])
 	{
 		clear(buffer);
-		if(key[KEY_RIGHT] && mega.animationPlaying< mega.animationPack.animationNumber-1) mega.animationPlaying++;
-		else if(key[KEY_LEFT] && mega.animationPlaying>0) mega.animationPlaying--;
+		//if(key[KEY_RIGHT] && mega.animationPlaying< mega.animationPack.animationNumber-1) mega.animationPlaying++;
+		//else if(key[KEY_LEFT] && mega.animationPlaying>0) mega.animationPlaying--;
+		megamanNormalEvents(&mega,&bg);
 		megamanDraw(buffer,&mega);
 		blit(buffer,screen,0,0,0,0,320,240);
 		rest(30);
