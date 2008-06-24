@@ -29,9 +29,9 @@ int main()
 	background bg;
 	BITMAP *buffer;	
 	init();
+	printf("%d\n",createBackground(&bg));
 	createMegaman(&mega);
-	//gorgonPrintAnimationPackValues(&mega.animationPack);
-	
+		
 	buffer=create_bitmap(320,240);
 	while(!key[KEY_ESC])
 	{
@@ -39,7 +39,10 @@ int main()
 		//if(key[KEY_RIGHT] && mega.animationPlaying< mega.animationPack.animationNumber-1) mega.animationPlaying++;
 		//else if(key[KEY_LEFT] && mega.animationPlaying>0) mega.animationPlaying--;
 		megamanNormalEvents(&mega,&bg);
+
+		gorgonDrawBackground(buffer,&bg.bg,BACK_LAYERS);
 		megamanDraw(buffer,&mega);
+		gorgonDrawBackground(buffer,&bg.bg,FRONT_LAYERS);
 		blit(buffer,screen,0,0,0,0,320,240);
 		rest(30);
 	}

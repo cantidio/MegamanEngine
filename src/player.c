@@ -140,7 +140,8 @@ void megamanMoveX(megaman *mega,background *bg)
 		for(i=0; i<mega->xPulse; i++)
 		{
 			if(mega->x+10<screen->w && backgroundCollision((int)mega->x-5,(int)mega->y, 10,2,bg))
-				mega->x++;
+				if(mega->x>=screen->w/2 && bg->bg.posX>((screen->w)-bg->bg.width)) bg->bg.posX--;
+					else mega->x++;
 			else break;
 		}
 	}
@@ -149,7 +150,8 @@ void megamanMoveX(megaman *mega,background *bg)
 		for(i=0; i<-mega->xPulse; i++)
 		{
 			if(mega->x-10>0 && backgroundCollision((int)mega->x-5,(int)mega->y, 10,2,bg))
-				mega->x--;
+				if(mega->x<=screen->w/2 && bg->bg.posX<0) bg->bg.posX++;
+					else mega->x--;
 			else break;
 		}
 	}
