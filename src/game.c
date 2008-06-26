@@ -1,11 +1,20 @@
 #include "../include/control.h"
+#include "../include/timer.h"
 #include "../include/background.h"
 #include "../include/weapon.h"
 #include "../include/player.h"
+#include "../include/menu.h"
 
 #define SIZEX 320
 #define SIZEY 240
 
+
+/**
+ * função para iniciar o modo allegro
+ *
+ * @author: Cantídio Oliveira Fontes
+ * @since: 22/06/2008
+ */
 void init()//inicialização do allegro
 {
 	int depth, res;
@@ -22,30 +31,83 @@ void init()//inicialização do allegro
 	}
 	install_timer();
 	install_keyboard();
+	LOCK_VARIABLE(timer);
+	LOCK_FUNCTION(game_time);
+	install_int_ex(game_time, BPS_TO_TIMER(40));
 }
-int main()
+/**
+ * função para rodar o loop principal do jogo
+ *
+ * @author: Cantídio oliveira Fontes
+ * @since: 25/06/2008
+ * @final: 25/06/2008
+ * @param: megaman *, ponteiro para o megaman
+ * @param: background *, ponteiro para o cenário que o megaman será exibido
+ */
+void gameLoop(megaman *mega,background *bg)
 {
-	megaman mega;
-	background bg;
 	BITMAP *buffer;	
-	init();
-	printf("%d\n",createBackground(&bg));
-	createMegaman(&mega);
-		
 	buffer=create_bitmap(320,240);
+	int backupTime=0;	
+
+	timer=0;
+	key[mega->controlDef.start]=0;
 	while(!key[KEY_ESC])
 	{
-		clear(buffer);
-		//if(key[KEY_RIGHT] && mega.animationPlaying< mega.animationPack.animationNumber-1) mega.animationPlaying++;
-		//else if(key[KEY_LEFT] && mega.animationPlaying>0) mega.animationPlaying--;
-		megamanNormalEvents(&mega,&bg);
+		while(timer>=0)
+		{
+			if(key[mega->controlDef.start])
+			{
+				key[mega->controlDef.start]=0;
+				backupTime=timer;
+				while(!key[mega->controlDef.start]){}//mostrar menu no lugar disso aki
+				timer=backupTime;
+				key[mega->controlDef.start]=0;
+			}
+			clear_to_color(buffer,makecol(0,111,0));
+			megamanNormalEvents(mega,bg);
+			weaponsNormalEvents(&mega->weapons,bg);
 
-		gorgonDrawBackground(buffer,&bg.bg,BACK_LAYERS);
-		megamanDraw(buffer,&mega);
-		gorgonDrawBackground(buffer,&bg.bg,FRONT_LAYERS);
-		blit(buffer,screen,0,0,0,0,320,240);
-		rest(30);
+			gorgonDrawBackground(buffer,&bg->bg,BACK_LAYERS);
+			megamanDraw(buffer,mega);
+			weaponsDraw(buffer,&mega->weapons,bg);
+			gorgonDrawBackground(buffer,&bg->bg,FRONT_LAYERS);
+//			desenhacol(buffer,&bg->bg);
+//	country crows
+			blit(buffer,screen,0,0,0,0,320,240);
+			timer--;
+		}
 	}
 	destroy_bitmap(buffer);
-	unloadMegaman(&mega);
+}
+
+int main(int argc, char *argv[])
+{
+	int exit=0;
+	inputControl control;
+	megaman mega;
+	background bg;
+	BITMAP *layer;
+	init();
+	loadControlDef(&control);
+	showLogos(&control);
+	do
+	{
+		switch(mainMenu(&control))
+		{
+			case 0:
+				createMegaman(&mega,&control);
+				createBackground(&bg,YAMATTO);
+				gameLoop(&mega,&bg);
+				destroyBackground(&bg);
+				destroyMegaman(&mega);
+				break;
+			case 1: //option
+				optionMenu(&control);
+				saveControlDef(&control);
+				break;
+			case 2: //exit
+				exit=1;
+		}
+	}while(exit==0);
 }

@@ -2,6 +2,8 @@
 
 #define WEAPON
 #include <stdio.h>
+#include "../../gorgon_core/include/gorgon.h"
+#include "background.h"
 //megaman 1
 #define	plasmaShot		0
 #define	boomerang		1
@@ -32,30 +34,48 @@
 #define	shadowBlade		24
 
 #define weaponNumber		25
-#define	maxShots		6
 #define maxWeaponBar		100
 
 typedef struct
 {
-	char ative;
-	float	x;
-	float	y;
+	char 	ative;					//se o tiro está ativo
+	char	direction;				//direção do tiro
+	short	animationPlaying;			//animação que está tocando no momento
+	float	xPulse;					//velocidade no eixo x que o tiro está no momento
+	float	yPulse;					//velocidade no eixo y que o tiro está no momento
+	float	x;					//posição atual no eixo x do tiro
+	float	y;					//posição atual no eixo y do tiro
 }shots;
 
 typedef struct
 {
-	char 	ative;
-	short 	bar;
-	shots	shot[maxShots];
+	char 	ative;					//se a arma está ativa
+	short	animationStand;				//animação normal
+	short	animationColide;			//animação quando colide ou destroi
+	short	cost;					//o custo para cada tiro da arma
+	short 	bar;					//a barra de munição atual
+	float	xPulse;					//velocidade no eixo x que o tiro está no momento
+	float	yPulse;					//velocidade no eixo y que o tiro está no momento
+	float	xPulseValue;				//velocidade que é acrescida ao tiro no eixo x
+	float	yPulseValue;				//velocidade que é acrescida ao tiro no eixo y
+	short 	maxShots;				//número máximo de tiros executados ao mesmo tempo
+	shots	*shot;					//os tiros
 }weapons;
 
 typedef struct
 {
-	int 	weaponInUse;	//arma usada no momento
-	weapons	weapon[weaponNumber];
+	gorgonSpritePack	spritePack;		//pacote de sprites
+	gorgonAnimationPack	animationPack;		//pacote de animações
+	int 			weaponInUse;		//arma usada no momento
+	weapons			weapon[weaponNumber];	//as armas
 }weaponList;
 
 int createWeaponList(weaponList *list);
+int createWeapon(weapons *weapon,short animationStand,short animationColide,short cost,float xPulse,float yPulse,float xPulseValue,float yPulseValue,short maxShots);
+int createAllWeapons(weaponList *list);
+void weaponsDraw(BITMAP *layer,weaponList *list,background *bg);
+void weaponsNormalEvents(weaponList *list,background *bg);
+void weaponShot(weaponList *list,float x,float y,char direction);
 int getNewWeapon(weaponList *list, int weapon);
 int nextWeapon(weaponList *list);
 int previousWeapon(weaponList *list);

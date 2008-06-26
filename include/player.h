@@ -27,7 +27,7 @@ typedef struct
 	int 			animationPlaying;
 	gorgonSpritePack 	spritePack;
 	gorgonAnimationPack 	animationPack;
-	RGB 			*pal;
+	RGB 			**pal;
 	weaponList		weapons;
 	float 			x;
 	float 			y;
@@ -43,10 +43,10 @@ typedef struct
 	char			direction;//direcao
 }megaman;
 
-int createMegaman(megaman *mega);
-int unloadMegaman(megaman *mega);
-void megamanChangeAnimation(megaman *mega,int anim);
-void megamanChangAnimationIfChange(megaman *mega, int anim);
+int createMegaman(megaman *mega,inputControl *control);
+int destroyMegaman(megaman *mega);
+void megamanChangeAnimation(megaman *mega,int anim,int frame);
+void megamanChangAnimationIfChange(megaman *mega, int anim,int frame);
 void megamanJump(megaman *mega);
 void megamanDraw(BITMAP *layer, megaman *mega);
 int megamanNormalEvents(megaman *mega,background *bg);
