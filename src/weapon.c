@@ -72,14 +72,15 @@ int createAllWeapons(weaponList *list)
 	if(list!=NULL)
 	{
 		createWeaponList(list);
-		createWeapon(&list->weapon[plasmaShot],1,2,0,3.5,0,0,0,6);	//cria arma de plasma
-		getNewWeapon(list,plasmaShot);					//ativa arma de plasma
+		createWeapon(&list->weapon[plasmaShot],1,2,0,	5.5,0,0,0,6);		//cria arma de plasma
+		getNewWeapon(list,plasmaShot);						//ativa arma de plasma
 		
-		createWeapon(&list->weapon[boomerang],0,3,5,10,5,-0.5,-0.3,2);	//cria arma boomerang
-		getNewWeapon(list,boomerang);					//ativa arma boomerang
+		createWeapon(&list->weapon[boomerang],0,3,5,	9,0,-0.3,0,	8);	//cria arma boomerang
+		getNewWeapon(list,boomerang);						//ativa arma boomerang
 	
-		createWeapon(&list->weapon[bombThower],3,3,5,-10,0,0.5,-0.3,2);	//cria arma bomba
-		getNewWeapon(list,bombThower);					//ativa arma bomba
+		createWeapon(&list->weapon[bombThower],4,27,0,	5,-7,0,0.5,	10);	//cria arma bomba
+		getNewWeapon(list,bombThower);						//ativa arma bomba
+
 	}
 	return 0;
 }
@@ -115,6 +116,25 @@ void weaponsDraw(BITMAP *layer,weaponList *list,background *bg)
 		}
 	}
 }
+
+void weaponsBackgroundColision(weaponList *list,background *bg)
+{
+	int i,j;
+	for(i=0; i<weaponNumber; i++)
+	{
+		if(list->weapon[i].ative)				//se a arma estiver ativada
+		{
+			for(j=0; j<list->weapon[i].maxShots; j++)	
+			{
+				if(list->weapon[i].shot[j].ative)	//se o tiro estiver ativado(em uso)
+				{
+					if(backgroundCollision(list->weapon[i].shot[j].x,list->weapon[i].shot[j].y,5,5,bg))
+						list->weapon[i].shot[j].animationPlaying=list->weapon[i].animationColide;
+				}
+			}
+		}
+	}
+}
 /**
  * função fazer executar os eventos normais de todos os tiros
  *
@@ -135,16 +155,31 @@ void weaponsNormalEvents(weaponList *list,background *bg)
 			{
 				if(list->weapon[i].shot[j].ative)	//se o tiro estiver ativado(em uso)
 				{
-					list->weapon[i].shot[j].xPulse+=list->weapon[i].xPulseValue;
-					list->weapon[i].shot[j].yPulse+=list->weapon[i].yPulseValue;
-					list->weapon[i].shot[j].x+=list->weapon[i].shot[j].xPulse;
-					list->weapon[i].shot[j].y+=list->weapon[i].shot[j].yPulse;
-					if(list->weapon[i].shot[j].x <-10 || list->weapon[i].shot[j].x>bg->bg.width+10 || list->weapon[i].shot[j].y <-10 || list->weapon[i].shot[j].y> bg->bg.height+10)
+					if(list->weapon[i].shot[j].animationPlaying!=list->weapon[i].animationColide)
+					{
+						if(list->weapon[i].shot[j].direction==NORMAL)
+						{
+							list->weapon[i].shot[j].xPulse	+=list->weapon[i].xPulseValue;
+							list->weapon[i].shot[j].yPulse	+=list->weapon[i].yPulseValue;
+						}
+						else
+						{
+							list->weapon[i].shot[j].xPulse	-=list->weapon[i].xPulseValue;
+							list->weapon[i].shot[j].yPulse	+=list->weapon[i].yPulseValue;
+						}
+						list->weapon[i].shot[j].x		+=list->weapon[i].shot[j].xPulse;
+						list->weapon[i].shot[j].y		+=list->weapon[i].shot[j].yPulse;
+					
+						if(list->weapon[i].shot[j].x <-10 || list->weapon[i].shot[j].x>bg->bg.width+10 || list->weapon[i].shot[j].y <-10 || list->weapon[i].shot[j].y> bg->bg.height+10)
+							list->weapon[i].shot[j].ative=0;
+					}
+					else if(gorgonAnimationFinished(&list->animationPack.animation[list->weapon[i].animationColide]))
 						list->weapon[i].shot[j].ative=0;
 				}
 			}
 		}
 	}
+	weaponsBackgroundColision(list,bg);
 }
 /**
  * função fazer uma arma atirar
@@ -172,17 +207,16 @@ void weaponShot(weaponList *list,float x,float y,char direction)
 			{
 				list->weapon[list->weaponInUse].shot[i].xPulse	= list->weapon[list->weaponInUse].xPulse;
 				list->weapon[list->weaponInUse].shot[i].yPulse	= list->weapon[list->weaponInUse].yPulse;
-				list->weapon[list->weaponInUse].shot[i].x	= x;
+				list->weapon[list->weaponInUse].shot[i].x	= x+5;
 				list->weapon[list->weaponInUse].shot[i].y	= y;
 			}
 			else
 			{
-				list->weapon[list->weaponInUse].shot[i].xPulse	= -list->weapon[list->weaponInUse].xPulse;
-				list->weapon[list->weaponInUse].shot[i].yPulse	= -list->weapon[list->weaponInUse].yPulse;
-				list->weapon[list->weaponInUse].shot[i].x	= -x;
-				list->weapon[list->weaponInUse].shot[i].y	= -y;
+				list->weapon[list->weaponInUse].shot[i].xPulse	= -(list->weapon[list->weaponInUse].xPulse);
+				list->weapon[list->weaponInUse].shot[i].yPulse	= list->weapon[list->weaponInUse].yPulse;
+				list->weapon[list->weaponInUse].shot[i].x	= x-5;
+				list->weapon[list->weaponInUse].shot[i].y	= y;
 			}
-			
 			break;
 		}
 	}

@@ -14,18 +14,23 @@ int createMegaman(megaman *mega,inputControl *control)
 	int error;
 	if(mega!=NULL)
 	{
+
 		error=gorgonLoadSpritePack(&mega->spritePack,"./resource/megaman.spk");
 		if(error!=GORGON_OK) return error;
+printf("lala\n");
 		error=gorgonLoadAnimationPack(&mega->animationPack,"./resource/megaman.apk");
 		if(error!=GORGON_OK) return error;
 		error=gorgonMakeAnimationPackIndexes(&mega->animationPack,&mega->spritePack);
 		if(error!=GORGON_OK) return error;
+		
+
+
 		mega->pal=(RGB **)malloc(sizeof(RGB *)*10);//aumentar conforme a necessidade
-		gorgonLoadPalette(&mega->pal[0],"resource/act/megaman.act");
-		gorgonLoadPalette(&mega->pal[1],"resource/act/cutman.act");
-		gorgonLoadPalette(&mega->pal[2],"resource/act/bomberman.act");
-		gorgonLoadPalette(&mega->pal[3],"resource/act/elecman.act");
-		gorgonLoadPalette(&mega->pal[4],"resource/act/fireman.act");
+		gorgonLoadPalette(&mega->pal[plasmaShot],	"resource/act/megaman.act");
+		gorgonLoadPalette(&mega->pal[boomerang],	"resource/act/cutman.act");
+		gorgonLoadPalette(&mega->pal[bombThower],	"resource/act/bomberman.act");
+		gorgonLoadPalette(&mega->pal[thunderShot],	"resource/act/elecman.act");
+		gorgonLoadPalette(&mega->pal[fireBlast],	"resource/act/fireman.act");
 		//error=gorgonLoadPalette(&mega->pal,"./resource/megaman.act");
 		if(error!=GORGON_OK) return error;
 		mega->life				= MaxHealth;
@@ -231,19 +236,86 @@ void megamanMoveY(megaman *mega,background *bg)
  */
 void megamanShot(megaman *mega)
 {
-	switch(mega->animationPlaying)
+	float x	= 0;
+	float y	= 0;
+	short stand	= 0;
+	short walk	= 0;
+	short inAir	= 0;
+	switch(mega->weapons.weaponInUse)
 	{
-		case animStand:
-			mega->control=0;
-			megamanChangAnimationIfChange(mega,animShotStand,0);
-			weaponShot(&mega->weapons,mega->x,mega->y-10,mega->direction);
+		case plasmaShot:
+			x	= mega->x;
+			y	= mega->y-10;
+			stand	= animShotStand;
+			walk	= animShotWalking;
+			inAir	= animShotInAir;
 			break;
-		case animWalk:
-			megamanChangAnimationIfChange(mega,animShotWalking,mega->animationPack.animation[mega->animationPlaying].frameOn-1);
+		case boomerang:
+			x	= mega->x;
+			y	= mega->y-15;
+			stand	= animThrowStand;
+			walk	= animThrowStand;
+			inAir	= animThrowInAir;
 			break;
-		case animJump: case animFall:
-			megamanChangAnimationIfChange(mega,animShotInAir,0);
+		case bombThower:
+			x	= mega->x;
+			y	= mega->y-15;
+			stand	= animThrowStand;
+			walk	= animThrowStand;
+			inAir	= animThrowInAir;
 			break;
+		
+	}
+	switch(mega->animationPlaying)
+		{
+			case animStand:
+				mega->control=0;
+				megamanChangAnimationIfChange(mega,stand,0);
+				weaponShot(&mega->weapons,x,y,mega->direction);
+				break;
+			case animWalk:
+				megamanChangAnimationIfChange(mega,walk,mega->animationPack.animation[mega->animationPlaying].frameOn-1);
+				break;
+			case animJump: case animFall:
+				megamanChangAnimationIfChange(mega,inAir,0);
+				break;
+		}
+}
+
+void megamanAnimationFinishedEvents(megaman *mega)
+{
+	if(gorgonAnimationFinished(&mega->animationPack.animation[mega->animationPlaying]))
+		switch(mega->animationPlaying)
+		{
+			case animArrive:
+			case animShotStand:
+			case animThrowStand:
+				mega->control=1;
+				megamanChangAnimationIfChange(mega,animStand,0);
+				break;
+		}
+}
+void megamanAnimationRunnigEvents(megaman *mega)
+{
+	if(mega->animationPlaying==animShotWalking)
+	{
+	
+	}
+	else if(mega->animationPlaying==animShotInAir)
+	{
+	
+	}
+	else if(mega->animationPlaying==animSlide)
+	{
+		if(mega->direction==NORMAL)
+			mega->xPulse=mega->xPulseValue*4;
+		else
+			mega->xPulse=-mega->xPulseValue*4;
+		if(gorgonAnimationFinished(&mega->animationPack.animation[mega->animationPlaying]))
+		{
+			mega->control=1;
+			megamanChangAnimationIfChange(mega,animStand,0);
+		}
 	}
 }
 /**
@@ -316,37 +388,8 @@ int megamanNormalEvents(megaman *mega,background *bg)
 		}
 	}
 
-	if(mega->animationPlaying==animShotStand && gorgonAnimationFinished(&mega->animationPack.animation[mega->animationPlaying]))
-	{
-		mega->control=1;
-		megamanChangAnimationIfChange(mega,animStand,0);
-	}
-	else if(mega->animationPlaying==animShotWalking)
-	{
-	
-	}
-	else if(mega->animationPlaying==animShotInAir)
-	{
-	
-	}
-	else if(mega->animationPlaying==animSlide)
-	{
-		if(mega->direction==NORMAL)
-			mega->xPulse=mega->xPulseValue*4;
-		else
-			mega->xPulse=-mega->xPulseValue*4;
-		if(gorgonAnimationFinished(&mega->animationPack.animation[mega->animationPlaying]))
-		{
-			mega->control=1;
-			megamanChangAnimationIfChange(mega,animStand,0);
-		}
-	}
-	else if(mega->animationPlaying==animArrive && gorgonAnimationFinished(&mega->animationPack.animation[mega->animationPlaying]))
-	{
-		mega->control=1;
-		megamanChangAnimationIfChange(mega,animStand,0);
-	}
-	
+	megamanAnimationFinishedEvents(mega);
+	megamanAnimationRunnigEvents(mega);
 	megamanMoveX(mega,bg);
 	megamanMoveY(mega,bg);
 }

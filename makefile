@@ -10,7 +10,8 @@ all: weapon timer player background control menu game ../gorgon_core/static/libg
 	./obj/game.o				\
 	-o megaman.e				\
 	../gorgon_core/static/libgorgon.a	\
-	`allegro-config --libs`
+	`allegro-config --libs`			\
+	../gorgon_core/fmod/lib/libfmodex.so.4.08.08
 
 weapon: ./src/weapon.c ./include/weapon.h
 	gcc -c ./src/weapon.c

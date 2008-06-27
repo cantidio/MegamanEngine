@@ -20,7 +20,8 @@
 #define animArrive		11
 #define animSlide		12
 #define animTwist		13
-
+#define animThrowStand		18
+#define animThrowInAir		19
 typedef struct
 {
 	int 			life;

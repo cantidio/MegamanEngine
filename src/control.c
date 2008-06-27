@@ -33,7 +33,9 @@ int loadControlDef(inputControl *c)
 {
 	FILE *file;
 	inputControl *control;
+
 	file=fopen("control.bin","rb");
+
 	if(file!=NULL)
 	{
 		fread(control,1,sizeof(inputControl),file);

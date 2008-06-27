@@ -1,3 +1,4 @@
+#include "../../gorgon_core/include/gorgon.h"
 #include "../include/control.h"
 #include "../include/timer.h"
 #include "../include/background.h"
@@ -83,19 +84,23 @@ void gameLoop(megaman *mega,background *bg)
 
 int main(int argc, char *argv[])
 {
-	int exit=0;
-	inputControl control;
-	megaman mega;
+	gorgonAudio	audio;
+	inputControl	control;
+	megaman 	mega;
+	int 		exit=0; int debug=0;
 	background bg;
 	BITMAP *layer;
+
 	init();
 	loadControlDef(&control);
+	gorgonCreateSoundSystem(&audio,"audio.bin");
 	showLogos(&control);
 	do
 	{
-		switch(mainMenu(&control))
+		switch(mainMenu(&control,&audio))
 		{
 			case 0:
+
 				createMegaman(&mega,&control);
 				createBackground(&bg,YAMATTO);
 				gameLoop(&mega,&bg);
@@ -110,4 +115,6 @@ int main(int argc, char *argv[])
 				exit=1;
 		}
 	}while(exit==0);
+	gorgonDestroySoundSystem(&audio);
+	return 0;
 }

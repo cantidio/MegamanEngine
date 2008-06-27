@@ -14,12 +14,15 @@ int showLogos(inputControl *control)
 	BITMAP 			*layer;
 	gorgonSpritePack 	spritePack;
 	gorgonAnimationPack	animationPack;
-
+printf("slala\n");
 	layer=create_bitmap(screen->w,screen->h);
-	gorgonLoadSpritePackFromSff(&spritePack,"./resource/intro.sff");
+printf("slala\n");
+	printf("%d\n",gorgonLoadSpritePack(&spritePack,"./resource/intro.spk"));
+printf("slala\n");
 	gorgonLoadAnimationPack(&animationPack,"./resource/intro.apk");
 	key[control->start]=0;
 	timer=0;
+printf("slala\n");
 	while(!key[control->start] && !key[KEY_ESC])
 	{
 		if(timer>0)
@@ -51,17 +54,25 @@ int showLogos(inputControl *control)
  * @param: inputControl *, ponteiro para a estrutura de controle
  * @return: int a opção escolhida no menu
  */
-int mainMenu(inputControl *control)
+int mainMenu(inputControl *control,gorgonAudio *audio)
 {
-	BITMAP *layer;
-	gorgonSpritePack spritePack;
-	int selected=0;
-	key[control->start]=0;
+	gorgonSpritePack 	spritePack;
+	gorgonSound		*change;
+	gorgonSound		*choose;
+	BITMAP 			*layer;
+	int 			selected=0;
+
+
+	gorgonLoadSpritePack(&spritePack,"./resource/intro.spk");
+	gorgonLoadSound(&change,"./resource/sons/mmse003.wav",audio);
+	gorgonLoadSound(&choose,"./resource/sons/mmse011.wav",audio);
 	layer=create_bitmap(screen->w,screen->h);
-	gorgonLoadSpritePackFromSff(&spritePack,"./resource/intro.sff");
+
 	if(layer!=NULL)
 	{
 		timer=0;
+		clear_keybuf();
+		key[control->start]=0;
 		while(!key[control->start])
 		{
 			while(timer>0)
@@ -69,12 +80,14 @@ int mainMenu(inputControl *control)
 				clear(layer);
 				if(key[control->up])
 				{
+					gorgonPlaySound(change,audio,3);
 					if(selected>0) selected--;
 					else selected=2;
 					key[control->up]=0;
 				}
 				else if(key[control->down])
 				{
+					gorgonPlaySound(change,audio,3);
 					if(selected<2) selected++;
 					else selected=0;
 					key[control->down]=0;
@@ -89,8 +102,12 @@ int mainMenu(inputControl *control)
 				timer--;
 			}
 		}
+		gorgonPlaySound(choose,audio,3);
+		rest(300);
 		destroy_bitmap(layer);
 		gorgonDestroySpritePack(&spritePack);
+		gorgonDestroySound(change);
+		gorgonDestroySound(choose);
 		return selected;
 	}
 	printf("erro ao alocar memória\n");
