@@ -38,13 +38,14 @@
 
 typedef struct
 {
-	char 	ative;					//se o tiro está ativo
-	char	direction;				//direção do tiro
-	short	animationPlaying;			//animação que está tocando no momento
-	float	xPulse;					//velocidade no eixo x que o tiro está no momento
-	float	yPulse;					//velocidade no eixo y que o tiro está no momento
-	float	x;					//posição atual no eixo x do tiro
-	float	y;					//posição atual no eixo y do tiro
+	gorgonAnimationPack	animationPack;		//pacote de animações
+	char 			ative;			//se o tiro está ativo
+	char			direction;		//direção do tiro
+	short			animationPlaying;	//animação que está tocando no momento
+	float			xPulse;			//velocidade no eixo x que o tiro está no momento
+	float			yPulse;			//velocidade no eixo y que o tiro está no momento
+	float			x;			//posição atual no eixo x do tiro
+	float			y;			//posição atual no eixo y do tiro
 }shots;
 
 typedef struct
@@ -65,7 +66,6 @@ typedef struct
 typedef struct
 {
 	gorgonSpritePack	spritePack;		//pacote de sprites
-	gorgonAnimationPack	animationPack;		//pacote de animações
 	int 			weaponInUse;		//arma usada no momento
 	weapons			weapon[weaponNumber];	//as armas
 }weaponList;
@@ -73,6 +73,7 @@ typedef struct
 int createWeaponList(weaponList *list);
 int createWeapon(weapons *weapon,short animationStand,short animationColide,short cost,float xPulse,float yPulse,float xPulseValue,float yPulseValue,short maxShots);
 int createAllWeapons(weaponList *list);
+int canShot(weaponList *list);
 void weaponsDraw(BITMAP *layer,weaponList *list,background *bg);
 void weaponsNormalEvents(weaponList *list,background *bg);
 void weaponShot(weaponList *list,float x,float y,char direction);

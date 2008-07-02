@@ -45,10 +45,10 @@ int backgroundCollision(int x, int y, int width, int height, background *bg)
 
 		if
 		(!(
-			(bg->plataform.clsn.x1[i] + bg->bg.posX > x + width) ||
-			(bg->plataform.clsn.y1[i] + bg->bg.posY> y + height) ||
-			(bg->plataform.clsn.x2[i] + bg->bg.posX < x) ||
-			(bg->plataform.clsn.y2[i] + bg->bg.posY < y)
+			(bg->plataform.clsn.x1[i] > x + width) ||
+			(bg->plataform.clsn.y1[i] > y + height) ||
+			(bg->plataform.clsn.x2[i] < x) ||
+			(bg->plataform.clsn.y2[i] < y)
 		))
 		{
 			//if(DEBUG) printf("%d, %d!\n",til->tiles[i].posX[j],til->tiles[i].posY[j]);

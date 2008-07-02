@@ -4,12 +4,27 @@
 #include "../include/background.h"
 #include "../include/weapon.h"
 #include "../include/player.h"
+#include "../include/gui.h"
 #include "../include/menu.h"
+
 
 #define SIZEX 320
 #define SIZEY 240
 
-
+void takeShot()
+{
+	PALETTE pal;
+	long size=1;
+	char nome[255];
+	int i;
+	for(i=0; size!=0; i++)
+	{
+		sprintf(nome,"./shots/shot_%.3d.bmp",i);
+		size=file_size(nome);
+	}
+	get_palette(pal);
+	save_bmp(nome,screen,pal);
+}
 /**
  * função para iniciar o modo allegro
  *
@@ -45,9 +60,11 @@ void init()//inicialização do allegro
  * @param: megaman *, ponteiro para o megaman
  * @param: background *, ponteiro para o cenário que o megaman será exibido
  */
-void gameLoop(megaman *mega,background *bg)
+void gameLoop(megaman *mega,background *bg,gorgonAudio *audio)
 {
-	BITMAP *buffer;	
+	BITMAP *buffer;
+	megamanGui gui;
+	createGui(&gui);	
 	buffer=create_bitmap(320,240);
 	int backupTime=0;	
 
@@ -64,15 +81,22 @@ void gameLoop(megaman *mega,background *bg)
 				while(!key[mega->controlDef.start]){}//mostrar menu no lugar disso aki
 				timer=backupTime;
 				key[mega->controlDef.start]=0;
+			} else if(key[KEY_F10])
+			{
+				takeShot();
+				key[KEY_F10]=0;
 			}
+				
 			clear_to_color(buffer,makecol(0,111,0));
-			megamanNormalEvents(mega,bg);
+			megamanNormalEvents(mega,bg,audio);
 			weaponsNormalEvents(&mega->weapons,bg);
 
 			gorgonDrawBackground(buffer,&bg->bg,BACK_LAYERS);
-			megamanDraw(buffer,mega);
+			megamanDraw(buffer,mega,bg);
 			weaponsDraw(buffer,&mega->weapons,bg);
 			gorgonDrawBackground(buffer,&bg->bg,FRONT_LAYERS);
+			
+			guiDraw(buffer,&gui,mega);
 //			desenhacol(buffer,&bg->bg);
 //	country crows
 			blit(buffer,screen,0,0,0,0,320,240);
@@ -93,25 +117,27 @@ int main(int argc, char *argv[])
 
 	init();
 	loadControlDef(&control);
-	gorgonCreateSoundSystem(&audio,"audio.bin");
+	printf("%d\n",gorgonCreateSoundSystem(&audio,"audio.bin"));
 	showLogos(&control);
 	do
 	{
 		switch(mainMenu(&control,&audio))
 		{
 			case 0:
-
-				createMegaman(&mega,&control);
+				createMegaman(&mega,&control,&audio);
 				createBackground(&bg,YAMATTO);
-				gameLoop(&mega,&bg);
+				gameLoop(&mega,&bg,&audio);
 				destroyBackground(&bg);
 				destroyMegaman(&mega);
 				break;
 			case 1: //option
-				optionMenu(&control);
+				optionMenu(&control,&audio);
 				saveControlDef(&control);
 				break;
-			case 2: //exit
+			case 2:
+				credits(&control);
+				break;
+			case 3: //exit
 				exit=1;
 		}
 	}while(exit==0);

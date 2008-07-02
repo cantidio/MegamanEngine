@@ -1,5 +1,5 @@
 #include "../include/weapon.h"
-
+char degub=0;
 /**
  * função para criar uma lista de armas
  *
@@ -16,7 +16,6 @@ int createWeaponList(weaponList *list)
 	if(list!=NULL)
 	{
 		gorgonLoadSpritePack(&list->spritePack,"resource/weapon.spk");
-		gorgonLoadAnimationPack(&list->animationPack,"resource/weapon.apk");
 		for(i=0; i<weaponNumber; i++)
 		{
 			list->weapon[i].ative	= 0;
@@ -54,7 +53,7 @@ int createWeapon(weapons *weapon,short animationStand,short animationColide,shor
 	weapon->shot		= (shots *)malloc(sizeof(shots)*maxShots);
 	if(weapon->shot!=NULL)
 	{
-		for(i=0; i<weapon->maxShots; weapon->shot[i].ative=0,i++);
+		for(i=0; i<weapon->maxShots; weapon->shot[i].ative=0,gorgonLoadAnimationPack(&weapon->shot[i].animationPack,"resource/weapon.apk"),i++);
 		return 1;
 	}
 	return 0;
@@ -71,17 +70,33 @@ int createAllWeapons(weaponList *list)
 {
 	if(list!=NULL)
 	{
-		createWeaponList(list);
-		createWeapon(&list->weapon[plasmaShot],1,2,0,	5.5,0,0,0,6);		//cria arma de plasma
-		getNewWeapon(list,plasmaShot);						//ativa arma de plasma
-		
-		createWeapon(&list->weapon[boomerang],0,3,5,	9,0,-0.3,0,	8);	//cria arma boomerang
-		getNewWeapon(list,boomerang);						//ativa arma boomerang
-	
-		createWeapon(&list->weapon[bombThower],4,27,0,	5,-7,0,0.5,	10);	//cria arma bomba
-		getNewWeapon(list,bombThower);						//ativa arma bomba
+		createWeaponList(list);//talvez 12
+		//					animN	animD	Gasto	PulsoX	PulsoY	gastX	gastY	maxTiros ao mesmo tempo
+		createWeapon(&list->weapon[plasmaShot],	1,	12,	0,	5.5,	0,	0,	0,	6);	//cria arma de plasma
+		createWeapon(&list->weapon[boomerang],	0,	3,	5,	9,	0,	-0.3,	0,	4);	//cria arma boomerang
+		createWeapon(&list->weapon[bombThower],	4,	27,	4,	5,	-7,	0,	0.5,	2);	//cria arma bomba
+		createWeapon(&list->weapon[thunderShot],15,	0,	3,	4,	0,	0,	0,	3);	//cria arma thunderShot
+		createWeapon(&list->weapon[iceBlast],	3,	28,	1,	4,	0,	0,	0,	5);	//cria arma iceBlast		
+		createWeapon(&list->weapon[fireBlast],	7,	28,	2,	4,	0,	0,	0,	5);	//cria arma fireBlast
 
+		getNewWeapon(list,plasmaShot);						//ativa arma de plasma
+		getNewWeapon(list,boomerang);						//ativa arma boomerang
+		getNewWeapon(list,bombThower);						//ativa arma bomba
+		getNewWeapon(list,thunderShot);						//ativa arma thunderShot
+		getNewWeapon(list,iceBlast);						//ativa arma iceBlast		
+		getNewWeapon(list,fireBlast);						//ativa arma fireBlast
+		
+		
 	}
+	return 0;
+}
+int canShot(weaponList *list)
+{
+	int i;
+	if(!(list->weapon[list->weaponInUse].bar>=list->weapon[list->weaponInUse].cost)) return 0;
+	for(i=0; i<list->weapon[list->weaponInUse].maxShots; i++)
+		if(!list->weapon[list->weaponInUse].shot[i].ative)
+			return 1;
 	return 0;
 }
 /**
@@ -97,6 +112,7 @@ int createAllWeapons(weaponList *list)
 void weaponsDraw(BITMAP *layer,weaponList *list,background *bg)
 {
 	int i,j;
+	int x;
 //	int x=-bg->bg.posX;
 //	int y=-bg->bg.posY;
 	for(i=0; i<weaponNumber; i++)
@@ -109,8 +125,7 @@ void weaponsDraw(BITMAP *layer,weaponList *list,background *bg)
 				if(list->weapon[i].shot[j].ative)	//se o tiro estiver ativado(em uso)
 				{
 
-					gorgonShowAnimation(layer,&list->animationPack.animation[list->weapon[i].shot[j].animationPlaying],&list->spritePack,NULL,list->weapon[i].shot[j].direction,(int)list->weapon[i].shot[j].x,(int)list->weapon[i].shot[j].y);
-
+					gorgonShowAnimation(layer,&list->weapon[i].shot[j].animationPack.animation[list->weapon[i].shot[j].animationPlaying],&list->spritePack,NULL,list->weapon[i].shot[j].direction,(int)list->weapon[i].shot[j].x+bg->bg.posX,(int)list->weapon[i].shot[j].y);
 				}
 			}
 		}
@@ -128,13 +143,14 @@ void weaponsBackgroundColision(weaponList *list,background *bg)
 			{
 				if(list->weapon[i].shot[j].ative)	//se o tiro estiver ativado(em uso)
 				{
-					if(backgroundCollision(list->weapon[i].shot[j].x,list->weapon[i].shot[j].y,5,5,bg))
+					if(backgroundCollision(list->weapon[i].shot[j].x-5,list->weapon[i].shot[j].y-5,10,10,bg))
 						list->weapon[i].shot[j].animationPlaying=list->weapon[i].animationColide;
 				}
 			}
 		}
 	}
 }
+
 /**
  * função fazer executar os eventos normais de todos os tiros
  *
@@ -173,8 +189,13 @@ void weaponsNormalEvents(weaponList *list,background *bg)
 						if(list->weapon[i].shot[j].x <-10 || list->weapon[i].shot[j].x>bg->bg.width+10 || list->weapon[i].shot[j].y <-10 || list->weapon[i].shot[j].y> bg->bg.height+10)
 							list->weapon[i].shot[j].ative=0;
 					}
-					else if(gorgonAnimationFinished(&list->animationPack.animation[list->weapon[i].animationColide]))
+					else if(gorgonAnimationFinished(&list->weapon[i].shot[j].animationPack.animation[list->weapon[i].animationColide]))
 						list->weapon[i].shot[j].ative=0;
+					if(degub)
+					{
+						//list->weapon[i].
+			
+					}
 				}
 			}
 		}

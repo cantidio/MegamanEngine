@@ -1,5 +1,5 @@
 
-all: weapon timer player background control menu game ../gorgon_core/static/libgorgon.a  
+all: weapon timer player background control menu gui game ../gorgon_core/static/libgorgon.a  
 	gcc					\
 	./obj/weapon.o 				\
 	./obj/timer.o 				\
@@ -7,6 +7,7 @@ all: weapon timer player background control menu game ../gorgon_core/static/libg
 	./obj/background.o			\
 	./obj/control.o				\
 	./obj/menu.o				\
+	./obj/gui.o				\
 	./obj/game.o				\
 	-o megaman.e				\
 	../gorgon_core/static/libgorgon.a	\
@@ -37,6 +38,10 @@ menu: ./src/menu.c ./include/menu.h
 	gcc -c ./src/menu.c
 	mv menu.o ./obj/menu.o
 
+gui: ./src/gui.c ./include/gui.h
+	gcc -c ./src/gui.c
+	mv gui.o ./obj/gui.o
+	
 game: ./src/game.c 
 	gcc -c ./src/game.c
 	mv game.o ./obj/game.o

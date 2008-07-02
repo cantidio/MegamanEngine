@@ -1,5 +1,23 @@
 #include "../include/menu.h"
+void wait(short x)
+{
+	short tick	= 0;
+	short seg	= 0;
 
+	while(seg<x)
+	{
+		while(timer>0)
+		{
+			tick++;
+			timer--;
+			if(tick==30)
+			{
+				tick=0;
+				seg++;
+			}
+		}
+	}
+}
 /**
  * função para mostrar o disclaimer hehe
  *
@@ -14,15 +32,11 @@ int showLogos(inputControl *control)
 	BITMAP 			*layer;
 	gorgonSpritePack 	spritePack;
 	gorgonAnimationPack	animationPack;
-printf("slala\n");
 	layer=create_bitmap(screen->w,screen->h);
-printf("slala\n");
-	printf("%d\n",gorgonLoadSpritePack(&spritePack,"./resource/intro.spk"));
-printf("slala\n");
+	gorgonLoadSpritePack(&spritePack,"./resource/intro.spk");
 	gorgonLoadAnimationPack(&animationPack,"./resource/intro.apk");
 	key[control->start]=0;
 	timer=0;
-printf("slala\n");
 	while(!key[control->start] && !key[KEY_ESC])
 	{
 		if(timer>0)
@@ -61,8 +75,6 @@ int mainMenu(inputControl *control,gorgonAudio *audio)
 	gorgonSound		*choose;
 	BITMAP 			*layer;
 	int 			selected=0;
-
-
 	gorgonLoadSpritePack(&spritePack,"./resource/intro.spk");
 	gorgonLoadSound(&change,"./resource/sons/mmse003.wav",audio);
 	gorgonLoadSound(&choose,"./resource/sons/mmse011.wav",audio);
@@ -82,13 +94,13 @@ int mainMenu(inputControl *control,gorgonAudio *audio)
 				{
 					gorgonPlaySound(change,audio,3);
 					if(selected>0) selected--;
-					else selected=2;
+					else selected=3;
 					key[control->up]=0;
 				}
 				else if(key[control->down])
 				{
 					gorgonPlaySound(change,audio,3);
-					if(selected<2) selected++;
+					if(selected<3) selected++;
 					else selected=0;
 					key[control->down]=0;
 				}
@@ -96,14 +108,15 @@ int mainMenu(inputControl *control,gorgonAudio *audio)
 				gorgonDrawSpriteByIndex(layer,&spritePack,NULL,8,NORMAL,(layer->w-spritePack.sprite[8].image->w*2),120);
 				textout_ex(layer,font,"Start Game",	110,130,makecol(230,230,230),-1);
 				textout_ex(layer,font,"Options",	110,140,makecol(230,230,230),-1);
-				textout_ex(layer,font,"Exit",		110,150,makecol(230,230,230),-1);
+				textout_ex(layer,font,"Credits",	110,150,makecol(230,230,230),-1);
+				textout_ex(layer,font,"Exit",		110,160,makecol(230,230,230),-1);
 				textout_ex(layer,font,">",		103,130 + selected*10,makecol(230,230,230),-1);
 				blit(layer,screen,0,0,0,0,layer->w,layer->h);
 				timer--;
 			}
 		}
 		gorgonPlaySound(choose,audio,3);
-		rest(300);
+		wait(1);
 		destroy_bitmap(layer);
 		gorgonDestroySpritePack(&spritePack);
 		gorgonDestroySound(change);
@@ -122,11 +135,16 @@ int mainMenu(inputControl *control,gorgonAudio *audio)
  * @param: inputControl *, ponteiro para a estrutura de controles
  * @return: int 0 se ocorreu erro ou 1 se ocorreu tudo bem
  */
-int optionMenu(inputControl *control)
+int optionMenu(inputControl *control,gorgonAudio *audio)
 {
-	BITMAP *layer;
-	int selected		= 0;
+	BITMAP 		*layer;
+	gorgonSound	*change;
+	gorgonSound	*choose;
+	int 		selected= 0;
 	
+	gorgonLoadSound(&change,"./resource/sons/mmse003.wav",audio);
+	gorgonLoadSound(&choose,"./resource/sons/mmse011.wav",audio);
+
 	key[control->start]=0;
 	layer=create_bitmap(screen->w,screen->h);
 	if(layer!=NULL)
@@ -138,12 +156,14 @@ int optionMenu(inputControl *control)
 			{
 				if(key[control->up])
 				{
+					gorgonPlaySound(change,audio,3);
 					if(selected>0) selected--;
 					else selected=8;
 					key[control->up]=0;
 				}
 				else if(key[control->down])
 				{
+					gorgonPlaySound(change,audio,3);
 					if(selected<8) selected++;
 					else selected=0;
 					key[control->down]=0;
@@ -190,8 +210,36 @@ int optionMenu(inputControl *control)
 				timer--;
 			}
 		}
+		gorgonPlaySound(choose,audio,3);
+		wait(1);
+		destroy_bitmap(layer);
+		gorgonDestroySound(change);
+		gorgonDestroySound(choose);
 		return 1;
 	}
 	printf("erro ao alocar memória\n");
 	return 0;
+}
+
+void credits(inputControl *control)
+{
+	BITMAP *layer;
+	key[control->start]=0;
+	layer=create_bitmap(screen->w,screen->h);
+	while(!(key[control->start]))
+	{
+		clear(layer);
+		textout_centre_ex(layer,font,"Credits:",layer->w/2,40,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"Engine Programing:",layer->w/2,60,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"Cantidio Oliveira Fontes",layer->w/2,70,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"aniquilatorbloody@gmail.com",layer->w/2,80,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"Sprite Ripping:",layer->w/2,100,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"SpritesInc",layer->w/2,110,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"www.spritesInc.com",layer->w/2,120,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"Game Concept and Trademark:",layer->w/2,140,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"Capcom",layer->w/2,150,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"www.capcom.com",layer->w/2,160,makecol(230,230,230),-1);
+		blit(layer,screen,0,0,0,0,layer->w,layer->h);
+	}
+	destroy_bitmap(layer);
 }

@@ -33,12 +33,11 @@ int loadControlDef(inputControl *c)
 {
 	FILE *file;
 	inputControl *control;
-
 	file=fopen("control.bin","rb");
-
 	if(file!=NULL)
 	{
-		fread(control,1,sizeof(inputControl),file);
+		control=(inputControl *)malloc(sizeof(inputControl));
+		fread(&(control[0]),1,sizeof(inputControl),file);
 		*c=*control;
 		fclose(file);
 		return 1;

@@ -22,16 +22,19 @@
 #define animTwist		13
 #define animThrowStand		18
 #define animThrowInAir		19
+#define reachGround		0
+#define	soundShot		1
 typedef struct
 {
 	int 			life;
 	int 			animationPlaying;
 	gorgonSpritePack 	spritePack;
 	gorgonAnimationPack 	animationPack;
+	gorgonSound 		**sound;
 	RGB 			**pal;
 	weaponList		weapons;
-	float 			x;
-	float 			y;
+	float 			x;//posição no cenário
+	float 			y;//posição no cenário
 	float			xPulse;
 	float			yPulse;
 	float			xPulseValue;
@@ -44,12 +47,12 @@ typedef struct
 	char			direction;//direcao
 }megaman;
 
-int createMegaman(megaman *mega,inputControl *control);
+int createMegaman(megaman *mega,inputControl *control,gorgonAudio *audio);
 int destroyMegaman(megaman *mega);
 void megamanChangeAnimation(megaman *mega,int anim,int frame);
 void megamanChangAnimationIfChange(megaman *mega, int anim,int frame);
 void megamanJump(megaman *mega);
-void megamanDraw(BITMAP *layer, megaman *mega);
-int megamanNormalEvents(megaman *mega,background *bg);
+void megamanDraw(BITMAP *layer, megaman *mega,background *bg);
+int megamanNormalEvents(megaman *mega,background *bg,gorgonAudio *audio);
 
 #endif
