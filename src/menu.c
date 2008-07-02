@@ -229,16 +229,17 @@ void credits(inputControl *control)
 	while(!(key[control->start]))
 	{
 		clear(layer);
-		textout_centre_ex(layer,font,"Credits:",layer->w/2,40,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"Engine Programing:",layer->w/2,60,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"Cantidio Oliveira Fontes",layer->w/2,70,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"aniquilatorbloody@gmail.com",layer->w/2,80,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"Sprite Ripping:",layer->w/2,100,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"SpritesInc",layer->w/2,110,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"www.spritesInc.com",layer->w/2,120,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"Game Concept and Trademark:",layer->w/2,140,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"Capcom",layer->w/2,150,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"www.capcom.com",layer->w/2,160,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"Credits:"					,layer->w/2,40,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"Engine Programming:"			,layer->w/2,60,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"Cantidio Oliveira Fontes"			,layer->w/2,70,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"aniquilatorbloody@gmail.com"		,layer->w/2,80,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"Sprite Ripping:"				,layer->w/2,100,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"Sprites INC"				,layer->w/2,110,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"www.sprites-inc.co.uk"			,layer->w/2,120,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"Game Sprites, Sounds and Trademark:"	,layer->w/2,140,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"Capcom"					,layer->w/2,150,makecol(230,230,230),-1);
+		textout_centre_ex(layer,font,"www.capcom.com"				,layer->w/2,160,makecol(230,230,230),-1);
+		
 		blit(layer,screen,0,0,0,0,layer->w,layer->h);
 	}
 	destroy_bitmap(layer);

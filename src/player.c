@@ -39,6 +39,7 @@ int createMegaman(megaman *mega,inputControl *control,gorgonAudio *audio)
 		if(error!=GORGON_OK) return error;
 		mega->life				= MaxHealth;
 		mega->controlDef			= *control;
+		mega->lastShot				= 0;
 		mega->x					= 20;
 		mega->y					= -40;
 		mega->xPulse				= 0;
@@ -92,11 +93,11 @@ int destroyMegaman(megaman *mega)
  * @param: int, número da animação que irá mudar
  * @param: int, número do frame da animação que irá começar
  */
-void megamanChangeAnimation(megaman *mega,int anim,int frame)
+void megamanChangeAnimation(megaman *mega,int anim,int frame,int time)
 {
 	mega->animationPlaying=anim;
 	mega->animationPack.animation[mega->animationPlaying].frameOn	= frame;
-	mega->animationPack.animation[mega->animationPlaying].timeOn	= 0;
+	mega->animationPack.animation[mega->animationPlaying].timeOn	= time;
 }
 /**
  * função que muda a animação atual do megaman apenas se a animacao não estiver passando
@@ -108,10 +109,10 @@ void megamanChangeAnimation(megaman *mega,int anim,int frame)
  * @param: int, número da animaçao para mudar
  * @param: int, número do frame que a animação deve começar
  */
-void megamanChangAnimationIfChange(megaman *mega, int anim,int frame)
+void megamanChangAnimationIfChange(megaman *mega, int anim,int frame,int time)
 {
 	if(mega->animationPlaying!=anim)
-		megamanChangeAnimation(mega,anim,frame);
+		megamanChangeAnimation(mega,anim,frame,time);
 }
 /**
  * função que faz o megaman pular
@@ -126,7 +127,7 @@ void megamanJump(megaman *mega)
 	//toca som de pulo
 	mega->y-=2;
 	mega->yPulse=-2*mega->yPulseMax;
-	megamanChangeAnimation(mega,animJump,0);
+	megamanChangeAnimation(mega,animJump,0,0);
 }
 
 
@@ -210,10 +211,10 @@ void megamanMoveY(megaman *mega,background *bg,gorgonAudio *audio)
 			{
 				mega->yPulse=0;
 				if(mega->animationPlaying==animTeleport)
-					megamanChangAnimationIfChange(mega,animArrive,0);
+					megamanChangAnimationIfChange(mega,animArrive,0,0);
 				else
 				{
-					megamanChangAnimationIfChange(mega,animStand,0);
+					megamanChangAnimationIfChange(mega,animStand,0,0);
 					gorgonPlaySound(mega->sound[reachGround],audio,3);
 					mega->control=1;
 				}
@@ -237,7 +238,7 @@ void megamanMoveY(megaman *mega,background *bg,gorgonAudio *audio)
 	if(!backgroundCollision((int)mega->x-5,(int)mega->y, 10,2,bg))
 	{
 		mega->yPulse+=mega->yPulseValue;
-		if(mega->control && mega->yPulse>0) megamanChangAnimationIfChange(mega,animFall,0);
+		if(mega->control && mega->yPulse>0) megamanChangAnimationIfChange(mega,animFall,0,0);
 	}
 }
 /**
@@ -260,6 +261,7 @@ void megamanShot(megaman *mega)
 		case plasmaShot:
 		case iceBlast:
 		case fireBlast:
+			mega->lastShot	= 10;
 			x		= mega->x;
 			y		= mega->y-15;
 			stand		= animShotStand;
@@ -295,16 +297,17 @@ void megamanShot(megaman *mega)
 	{
 		case animStand:
 			mega->control=0;
-			megamanChangAnimationIfChange(mega,stand,0);
+			megamanChangAnimationIfChange(mega,stand,0,0);
 			weaponShot(&mega->weapons,x,y,mega->direction);
 			break;
 		case animWalk:
-			megamanChangAnimationIfChange(mega,walk,mega->animationPack.animation[mega->animationPlaying].frameOn );
+		case animShotWalking:
+			megamanChangAnimationIfChange(mega,walk,mega->animationPack.animation[mega->animationPlaying].frameOn,mega->animationPack.animation[mega->animationPlaying].timeOn);
 			weaponShot(&mega->weapons,x,y,mega->direction);
 			break;
 		case animJump: case animFall:
 			mega->control=0;
-			megamanChangAnimationIfChange(mega,inAir,0);
+			megamanChangAnimationIfChange(mega,inAir,0,0);
 			weaponShot(&mega->weapons,x,y,mega->direction);
 			break;
 	}
@@ -320,13 +323,13 @@ void megamanAnimationFinishedEvents(megaman *mega)
 			case animThrowStand:
 			case animSlide:
 				mega->control=1;
-				megamanChangAnimationIfChange(mega,animStand,0);
+				megamanChangAnimationIfChange(mega,animStand,0,0);
 				mega->xPulse=0;
 				break;
 			case animThrowInAir:
 			case animShotInAir:
 				mega->control=1;
-				megamanChangAnimationIfChange(mega,animFall,0);
+				megamanChangAnimationIfChange(mega,animFall,0,0);
 				break;
 		}
 }
@@ -365,7 +368,7 @@ int megamanNormalEvents(megaman *mega,background *bg,gorgonAudio *audio)
 		if(key[mega->controlDef.jump] && key[mega->controlDef.down] && backgroundCollision((int)mega->x-5,(int)mega->y, 10,2,bg))
 		{
 			mega->control=0;
-			megamanChangAnimationIfChange(mega,animSlide,0);
+			megamanChangAnimationIfChange(mega,animSlide,0,0);
 		}
 		else if(key[mega->controlDef.shot] && canShot(&mega->weapons))
 		{
@@ -379,8 +382,13 @@ int megamanNormalEvents(megaman *mega,background *bg,gorgonAudio *audio)
 		else if(key[mega->controlDef.right])
 		{
 			mega->direction=NORMAL;
-			if(backgroundCollision((int)mega->x-5,(int)mega->y-2, 10,2,bg))
-				megamanChangAnimationIfChange(mega,animWalk,0);
+			if(mega->lastShot==0)
+			{
+				if(backgroundCollision((int)mega->x-5,(int)mega->y-2, 10,2,bg) && mega->animationPlaying!=animShotWalking)
+					megamanChangAnimationIfChange(mega,animWalk,0,0);
+				else
+					megamanChangAnimationIfChange(mega,animWalk,mega->animationPack.animation[mega->animationPlaying].frameOn,mega->animationPack.animation[mega->animationPlaying].timeOn);
+			}
 			if(mega->xPulse<mega->xPulseMax)
 			{
 				mega->xPulse+=mega->xPulseValue;
@@ -389,8 +397,13 @@ int megamanNormalEvents(megaman *mega,background *bg,gorgonAudio *audio)
 		else if(key[mega->controlDef.left])
 		{
 			mega->direction=H_FLIP;
-			if(backgroundCollision((int)mega->x-5,(int)mega->y-2, 10,2,bg))
-				megamanChangAnimationIfChange(mega,animWalk,0);
+			if(mega->lastShot==0)
+			{
+				if(backgroundCollision((int)mega->x-5,(int)mega->y-2, 10,2,bg)  && mega->animationPlaying!=animShotWalking)
+					megamanChangAnimationIfChange(mega,animWalk,0,0);
+				else
+					megamanChangAnimationIfChange(mega,animWalk,mega->animationPack.animation[mega->animationPlaying].frameOn,mega->animationPack.animation[mega->animationPlaying].timeOn);
+			}
 			if(mega->xPulse>-mega->xPulseMax)
 			{
 				mega->xPulse-=mega->xPulseValue;
@@ -398,13 +411,13 @@ int megamanNormalEvents(megaman *mega,background *bg,gorgonAudio *audio)
 		}
 		else if(!key[mega->controlDef.right] && mega->xPulse>0)
 		{
-			megamanChangAnimationIfChange(mega,animStand,0);
+			megamanChangAnimationIfChange(mega,animStand,0,0);
 			mega->xPulse-=mega->xPulseValue;
 			if(mega->xPulse<0) mega->xPulse=0;
 		}
 		else if(!key[mega->controlDef.left] && mega->xPulse<0)
 		{
-			megamanChangAnimationIfChange(mega,animStand,0);
+			megamanChangAnimationIfChange(mega,animStand,0,0);
 			mega->xPulse+=mega->xPulseValue;
 			if(mega->xPulse>0) mega->xPulse=0;
 		}
@@ -419,7 +432,7 @@ int megamanNormalEvents(megaman *mega,background *bg,gorgonAudio *audio)
 			key[mega->controlDef.weaponB]=0;
 		}
 	}
-	
+	if(mega->lastShot>0) mega->lastShot--;
 	megamanAnimationFinishedEvents(mega);
 	megamanAnimationRunnigEvents(mega);
 	megamanMoveX(mega,bg);

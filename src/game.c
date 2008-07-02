@@ -22,6 +22,7 @@ void takeShot()
 		sprintf(nome,"./shots/shot_%.3d.bmp",i);
 		size=file_size(nome);
 	}
+	printf("%s\n",nome);
 	get_palette(pal);
 	save_bmp(nome,screen,pal);
 }

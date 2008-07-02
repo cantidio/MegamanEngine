@@ -61,6 +61,8 @@ typedef struct
 	float	yPulseValue;				//velocidade que é acrescida ao tiro no eixo y
 	short 	maxShots;				//número máximo de tiros executados ao mesmo tempo
 	shots	*shot;					//os tiros
+	short	delay;					//tempo entre um tiro e outro
+	short	delayValue;					//tempo entre um tiro e outro
 }weapons;
 
 typedef struct
@@ -71,7 +73,7 @@ typedef struct
 }weaponList;
 
 int createWeaponList(weaponList *list);
-int createWeapon(weapons *weapon,short animationStand,short animationColide,short cost,float xPulse,float yPulse,float xPulseValue,float yPulseValue,short maxShots);
+int createWeapon(weapons *weapon,short animationStand,short animationColide,short cost,short delay,float xPulse,float yPulse,float xPulseValue,float yPulseValue,short maxShots);
 int createAllWeapons(weaponList *list);
 int canShot(weaponList *list);
 void weaponsDraw(BITMAP *layer,weaponList *list,background *bg);

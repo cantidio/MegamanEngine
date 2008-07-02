@@ -28,6 +28,7 @@ typedef struct
 {
 	int 			life;
 	int 			animationPlaying;
+	short			lastShot;
 	gorgonSpritePack 	spritePack;
 	gorgonAnimationPack 	animationPack;
 	gorgonSound 		**sound;
@@ -49,8 +50,8 @@ typedef struct
 
 int createMegaman(megaman *mega,inputControl *control,gorgonAudio *audio);
 int destroyMegaman(megaman *mega);
-void megamanChangeAnimation(megaman *mega,int anim,int frame);
-void megamanChangAnimationIfChange(megaman *mega, int anim,int frame);
+void megamanChangeAnimation(megaman *mega,int anim,int frame,int time);
+void megamanChangAnimationIfChange(megaman *mega, int anim,int frame,int time);
 void megamanJump(megaman *mega);
 void megamanDraw(BITMAP *layer, megaman *mega,background *bg);
 int megamanNormalEvents(megaman *mega,background *bg,gorgonAudio *audio);

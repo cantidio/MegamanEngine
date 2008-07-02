@@ -39,12 +39,14 @@ int createWeaponList(weaponList *list)
  * @param: short, número máximo de tiros possíveis
  * @return: int 1 se não houve erro ou 0 se ouve erro
  */
-int createWeapon(weapons *weapon,short animationStand,short animationColide,short cost,float xPulse,float yPulse,float xPulseValue,float yPulseValue,short maxShots)
+int createWeapon(weapons *weapon,short animationStand,short animationColide,short cost,short delay,float xPulse,float yPulse,float xPulseValue,float yPulseValue,short maxShots)
 {
 	int i;
 	weapon->animationStand	= animationStand;
 	weapon->animationColide	= animationColide;
 	weapon->cost		= cost;
+	weapon->delayValue	= delay;
+	weapon->delay		= 0;
 	weapon->xPulse		= xPulse;
 	weapon->yPulse		= yPulse;
 	weapon->xPulseValue	= xPulseValue;
@@ -63,7 +65,7 @@ int createWeapon(weapons *weapon,short animationStand,short animationColide,shor
  *
  * @author: Cantídio Oliveira Fontes
  * @since: 25/06/2008
- * @final: 26/06/2008
+ * @final: 02/07/2008
  * @param: weaponList *, ponteiro para a lista de armas disponível
  */
 int createAllWeapons(weaponList *list)
@@ -71,13 +73,13 @@ int createAllWeapons(weaponList *list)
 	if(list!=NULL)
 	{
 		createWeaponList(list);//talvez 12
-		//					animN	animD	Gasto	PulsoX	PulsoY	gastX	gastY	maxTiros ao mesmo tempo
-		createWeapon(&list->weapon[plasmaShot],	1,	12,	0,	5.5,	0,	0,	0,	6);	//cria arma de plasma
-		createWeapon(&list->weapon[boomerang],	0,	3,	5,	9,	0,	-0.3,	0,	4);	//cria arma boomerang
-		createWeapon(&list->weapon[bombThower],	4,	27,	4,	5,	-7,	0,	0.5,	2);	//cria arma bomba
-		createWeapon(&list->weapon[thunderShot],15,	0,	3,	4,	0,	0,	0,	3);	//cria arma thunderShot
-		createWeapon(&list->weapon[iceBlast],	3,	28,	1,	4,	0,	0,	0,	5);	//cria arma iceBlast		
-		createWeapon(&list->weapon[fireBlast],	7,	28,	2,	4,	0,	0,	0,	5);	//cria arma fireBlast
+		//					animN	animD	Gasto	delay	PulsoX	PulsoY	gastX	gastY	maxTiros ao mesmo tempo
+		createWeapon(&list->weapon[plasmaShot],	1,	12,	0,	10,	5.5,	0,	0,	0,	6);	//cria arma de plasma
+		createWeapon(&list->weapon[boomerang],	0,	3,	5,	10,	9,	0,	-0.3,	0,	4);	//cria arma boomerang
+		createWeapon(&list->weapon[bombThower],	4,	27,	4,	20,	5,	-7,	0,	0.5,	2);	//cria arma bomba
+		createWeapon(&list->weapon[thunderShot],15,	0,	3,	10,	4,	0,	0,	0,	3);	//cria arma thunderShot
+		createWeapon(&list->weapon[iceBlast],	3,	28,	1,	30,	4,	0,	0,	0,	5);	//cria arma iceBlast		
+		createWeapon(&list->weapon[fireBlast],	7,	28,	2,	10,	4,	0,	0,	0,	5);	//cria arma fireBlast
 
 		getNewWeapon(list,plasmaShot);						//ativa arma de plasma
 		getNewWeapon(list,boomerang);						//ativa arma boomerang
@@ -93,7 +95,8 @@ int createAllWeapons(weaponList *list)
 int canShot(weaponList *list)
 {
 	int i;
-	if(!(list->weapon[list->weaponInUse].bar>=list->weapon[list->weaponInUse].cost)) return 0;
+	if(!(list->weapon[list->weaponInUse].bar>=list->weapon[list->weaponInUse].cost)) 	return 0;
+	if(list->weapon[list->weaponInUse].delay>0)						return 0;
 	for(i=0; i<list->weapon[list->weaponInUse].maxShots; i++)
 		if(!list->weapon[list->weaponInUse].shot[i].ative)
 			return 1;
@@ -171,6 +174,7 @@ void weaponsNormalEvents(weaponList *list,background *bg)
 			{
 				if(list->weapon[i].shot[j].ative)	//se o tiro estiver ativado(em uso)
 				{
+					if(list->weapon[i].delay>0) list->weapon[i].delay--;
 					if(list->weapon[i].shot[j].animationPlaying!=list->weapon[i].animationColide)
 					{
 						if(list->weapon[i].shot[j].direction==NORMAL)
@@ -224,6 +228,7 @@ void weaponShot(weaponList *list,float x,float y,char direction)
 			list->weapon[list->weaponInUse].shot[i].ative		= 1;
 			list->weapon[list->weaponInUse].shot[i].direction	= direction;
 			list->weapon[list->weaponInUse].shot[i].animationPlaying= list->weapon[list->weaponInUse].animationStand;
+			list->weapon[list->weaponInUse].delay=list->weapon[list->weaponInUse].delayValue;
 			if(direction==NORMAL)
 			{
 				list->weapon[list->weaponInUse].shot[i].xPulse	= list->weapon[list->weaponInUse].xPulse;
