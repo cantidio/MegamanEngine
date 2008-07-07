@@ -5,6 +5,8 @@
 #include "./weapon.h"
 #include "./background.h"
 #include "./control.h"
+#include "./debug.h"
+
 #define MaxHealth 100
 #define animStand		0
 #define animWalk		1
@@ -20,15 +22,18 @@
 #define animArrive		11
 #define animSlide		12
 #define animTwist		13
+#define animHit			21
 #define animThrowStand		18
 #define animThrowInAir		19
 #define reachGround		0
 #define	soundShot		1
+#define soundHit		2
 typedef struct
 {
 	int 			life;
 	int 			animationPlaying;
 	short			lastShot;
+	gorgonAudio		audio;
 	gorgonSpritePack 	spritePack;
 	gorgonAnimationPack 	animationPack;
 	gorgonSound 		**sound;
@@ -50,10 +55,12 @@ typedef struct
 
 int createMegaman(megaman *mega,inputControl *control,gorgonAudio *audio);
 int destroyMegaman(megaman *mega);
+int megamanIsDead(megaman *mega);
+void megamanHit(megaman *mega,short damage,char direction,short pulse);
 void megamanChangeAnimation(megaman *mega,int anim,int frame,int time);
 void megamanChangAnimationIfChange(megaman *mega, int anim,int frame,int time);
 void megamanJump(megaman *mega);
 void megamanDraw(BITMAP *layer, megaman *mega,background *bg);
-int megamanNormalEvents(megaman *mega,background *bg,gorgonAudio *audio);
+int megamanNormalEvents(megaman *mega,background *bg);
 
 #endif

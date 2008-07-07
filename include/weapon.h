@@ -1,9 +1,9 @@
 #ifndef WEAPON
-
 #define WEAPON
 #include <stdio.h>
 #include "../../gorgon_core/include/gorgon.h"
 #include "background.h"
+#include "debug.h"
 //megaman 1
 #define	plasmaShot		0
 #define	boomerang		1
@@ -53,6 +53,7 @@ typedef struct
 	char 	ative;					//se a arma está ativa
 	short	animationStand;				//animação normal
 	short	animationColide;			//animação quando colide ou destroi
+	short	power;					//poder de ataque da arma
 	short	cost;					//o custo para cada tiro da arma
 	short 	bar;					//a barra de munição atual
 	float	xPulse;					//velocidade no eixo x que o tiro está no momento
@@ -62,24 +63,28 @@ typedef struct
 	short 	maxShots;				//número máximo de tiros executados ao mesmo tempo
 	shots	*shot;					//os tiros
 	short	delay;					//tempo entre um tiro e outro
-	short	delayValue;					//tempo entre um tiro e outro
+	short	delayValue;				//tempo entre um tiro e outro
 }weapons;
 
 typedef struct
 {
 	gorgonSpritePack	spritePack;		//pacote de sprites
+	gorgonAudio		audio;			//salva as informações do audio
+	gorgonSound		*hitSound;		//som que toca quando o tiro colide com
 	int 			weaponInUse;		//arma usada no momento
 	weapons			weapon[weaponNumber];	//as armas
+	
 }weaponList;
 
-int createWeaponList(weaponList *list);
-int createWeapon(weapons *weapon,short animationStand,short animationColide,short cost,short delay,float xPulse,float yPulse,float xPulseValue,float yPulseValue,short maxShots);
-int createAllWeapons(weaponList *list);
-int canShot(weaponList *list);
-void weaponsDraw(BITMAP *layer,weaponList *list,background *bg);
-void weaponsNormalEvents(weaponList *list,background *bg);
-void weaponShot(weaponList *list,float x,float y,char direction);
-int getNewWeapon(weaponList *list, int weapon);
-int nextWeapon(weaponList *list);
-int previousWeapon(weaponList *list);
+void 	createWeaponList(weaponList *list,gorgonAudio *audio);
+void	destroyWeaponList(weaponList *list);
+int 	createWeapon(weapons *weapon,short animationStand,short animationColide,short cost,short power,short delay,float xPulse,float yPulse,float xPulseValue,float yPulseValue,short maxShots);
+int 	createAllWeapons(weaponList *list,gorgonAudio *audio);
+int 	canShot(weaponList *list);
+void 	weaponsDraw(BITMAP *layer,weaponList *list,background *bg);
+void 	weaponsNormalEvents(weaponList *list,background *bg);
+void 	weaponShot(weaponList *list,float x,float y,char direction);
+int 	getNewWeapon(weaponList *list, int weapon);
+int 	nextWeapon(weaponList *list);
+int 	previousWeapon(weaponList *list);
 #endif

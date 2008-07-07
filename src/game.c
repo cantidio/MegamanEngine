@@ -1,4 +1,5 @@
 #include "../../gorgon_core/include/gorgon.h"
+#include "../include/debug.h"
 #include "../include/control.h"
 #include "../include/timer.h"
 #include "../include/background.h"
@@ -6,31 +7,18 @@
 #include "../include/player.h"
 #include "../include/gui.h"
 #include "../include/menu.h"
+#include "../include/enemy_jack.h"
 
 
 #define SIZEX 320
 #define SIZEY 240
 
-void takeShot()
-{
-	PALETTE pal;
-	long size=1;
-	char nome[255];
-	int i;
-	for(i=0; size!=0; i++)
-	{
-		sprintf(nome,"./shots/shot_%.3d.bmp",i);
-		size=file_size(nome);
-	}
-	printf("%s\n",nome);
-	get_palette(pal);
-	save_bmp(nome,screen,pal);
-}
 /**
  * função para iniciar o modo allegro
  *
- * @author: Cantídio Oliveira Fontes
- * @since: 22/06/2008
+ * @author: 	Cantídio Oliveira Fontes
+ * @since: 	22/06/2008
+ * @final:	22/06/2008
  */
 void init()//inicialização do allegro
 {
@@ -55,15 +43,16 @@ void init()//inicialização do allegro
 /**
  * função para rodar o loop principal do jogo
  *
- * @author: Cantídio oliveira Fontes
- * @since: 25/06/2008
- * @final: 25/06/2008
- * @param: megaman *, ponteiro para o megaman
- * @param: background *, ponteiro para o cenário que o megaman será exibido
+ * @author:	Cantídio oliveira Fontes
+ * @since: 	25/06/2008
+ * @final: 	06/07/2008
+ * @param: 	megaman *, ponteiro para o megaman
+ * @param: 	background *, ponteiro para o cenário que o megaman será exibido
  */
 void gameLoop(megaman *mega,background *bg,gorgonAudio *audio)
 {
 	BITMAP *buffer;
+	enemyJackPack jackPack;
 	megamanGui gui;
 	createGui(&gui);	
 	buffer=create_bitmap(320,240);
@@ -71,6 +60,14 @@ void gameLoop(megaman *mega,background *bg,gorgonAudio *audio)
 
 	timer=0;
 	key[mega->controlDef.start]=0;
+	gorgonPlaySound(bg->music,audio,GORGON_MUSIC);
+	createEnemyJack(&jackPack,audio,6);
+	createJack(&jackPack,180,159);
+	createJack(&jackPack,230,127);
+	createJack(&jackPack,360,79);
+	createJack(&jackPack,460,111);
+	createJack(&jackPack,635,111);
+	createJack(&jackPack,727,191);
 	while(!key[KEY_ESC])
 	{
 		while(timer>=0)
@@ -87,23 +84,35 @@ void gameLoop(megaman *mega,background *bg,gorgonAudio *audio)
 				takeShot();
 				key[KEY_F10]=0;
 			}
+			else if(key[KEY_D] && key[KEY_SPACE])
+			{
+				key[KEY_SPACE]	= 0;
+				key[KEY_D]	= 0;
+				toogleDebug();
+			}
 				
 			clear_to_color(buffer,makecol(0,111,0));
-			megamanNormalEvents(mega,bg,audio);
+			if(megamanIsDead(mega)) key[KEY_ESC]=1;
+
+			jackPackNormalEvents(&jackPack,bg,mega);
+			megamanNormalEvents(mega,bg);
 			weaponsNormalEvents(&mega->weapons,bg);
 
-			gorgonDrawBackground(buffer,&bg->bg,BACK_LAYERS);
+			gorgonDrawBackground(buffer,&bg->bg,BACK_LAYERS);//parte do cenário que fica atraz do personagens
+			drawClsn(buffer,bg);				//desenha as caixas de colisão do cenário
+			
+			jackDraw(buffer,&jackPack,bg);
 			megamanDraw(buffer,mega,bg);
 			weaponsDraw(buffer,&mega->weapons,bg);
-			gorgonDrawBackground(buffer,&bg->bg,FRONT_LAYERS);
 			
+			gorgonDrawBackground(buffer,&bg->bg,FRONT_LAYERS);//parte do cenário a frente do personagem
 			guiDraw(buffer,&gui,mega);
-//			desenhacol(buffer,&bg->bg);
-//	country crows
 			blit(buffer,screen,0,0,0,0,320,240);
 			timer--;
 		}
 	}
+	destroyEnemyJack(&jackPack);
+	gorgonStopChannel(audio,GORGON_MUSIC);
 	destroy_bitmap(buffer);
 }
 
@@ -112,13 +121,14 @@ int main(int argc, char *argv[])
 	gorgonAudio	audio;
 	inputControl	control;
 	megaman 	mega;
-	int 		exit=0; int debug=0;
+	int 		exit=0;
+	int 		debug=0;
 	background bg;
 	BITMAP *layer;
 
 	init();
 	loadControlDef(&control);
-	printf("%d\n",gorgonCreateSoundSystem(&audio,"audio.bin"));
+	gorgonCreateSoundSystem(&audio,"audio.bin");
 	showLogos(&control);
 	do
 	{
@@ -126,16 +136,32 @@ int main(int argc, char *argv[])
 		{
 			case 0:
 				createMegaman(&mega,&control,&audio);
-				createBackground(&bg,YAMATTO);
+				createBackground(&bg,&audio,YAMATTO);
 				gameLoop(&mega,&bg,&audio);
 				destroyBackground(&bg);
 				destroyMegaman(&mega);
 				break;
 			case 1: //option
-				optionMenu(&control,&audio);
-				saveControlDef(&control);
+				do
+				{
+					switch(optionMenu(&control,&audio))
+					{
+						case 0://configuração de controles
+							controlMenu(&control,&audio);
+							saveControlDef(&control);
+							break;
+						case 1://configuração de audio
+							soundMenu(&control,&audio);
+							gorgonSaveAudioConfigBin(&audio,"audio.bin");
+							break;
+						case 2://sair do menu
+							exit=1;
+							break;
+					}
+				}while(exit==0);
+				exit=0;
 				break;
-			case 2:
+			case 2://mostrar créditos
 				credits(&control);
 				break;
 			case 3: //exit

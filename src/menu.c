@@ -1,4 +1,34 @@
 #include "../include/menu.h"
+/**
+ * função para tirar um shot da tela
+ *
+ * @author: 	Cantídio Oliveira Fontes
+ * @since: 	22/06/2008
+ * @final:	22/06/2008
+ */
+void takeShot()
+{
+	PALETTE pal;
+	long size=1;
+	char nome[255];
+	int i;
+	for(i=0; size!=0; i++)
+	{
+		sprintf(nome,"./shots/shot_%.3d.bmp",i);
+		size=file_size(nome);
+	}
+	printf("%s\n",nome);
+	get_palette(pal);
+	save_bmp(nome,screen,pal);
+}
+/**
+ * função para aguardar um determinado tempo
+ *
+ * @author:	Cantídio Oliveira Fontes
+ * @since:	25/06/2008
+ * @final:	25/06/2008
+ * @param:	short, modificador temporal
+ */
 void wait(short x)
 {
 	short tick	= 0;
@@ -19,37 +49,46 @@ void wait(short x)
 	}
 }
 /**
- * função para mostrar o disclaimer hehe
+ * função para mostrar o disclaimer
  *
- * @author: Cantídio Oliveira Fontes
- * @since: 25/06/2008
- * @final: 25/06/2008
- * @param: inputControl *, ponteiro para a estrutura de controles
- * @return: int 0 se deu erro ou 1 se ocorreu tudo bem
+ * @author: 	Cantídio Oliveira Fontes
+ * @since: 	25/06/2008
+ * @final: 	03/07/2008
+ * @param: 	inputControl *, ponteiro para a estrutura de controles
+ * @return: 	int 0 se deu erro ou 1 se ocorreu tudo bem
  */
 int showLogos(inputControl *control)
 {
 	BITMAP 			*layer;
 	gorgonSpritePack 	spritePack;
 	gorgonAnimationPack	animationPack;
-	layer=create_bitmap(screen->w,screen->h);
+	FONT			*megaFont;
+	
 	gorgonLoadSpritePack(&spritePack,"./resource/intro.spk");
 	gorgonLoadAnimationPack(&animationPack,"./resource/intro.apk");
-	key[control->start]=0;
-	timer=0;
+	
+	megaFont		= load_bitmap_font("./resource/font.pcx",NULL,NULL);
+	layer			= create_bitmap(screen->w,screen->h);
+	key[control->start]	= 0;
+	timer			= 0;
 	while(!key[control->start] && !key[KEY_ESC])
 	{
 		if(timer>0)
 		{
+			if(key[KEY_F10])
+			{
+				takeShot();
+				key[KEY_F10]=0;
+			}
 			clear(layer);
-			textout_centre_ex(layer,font,"This is a test made with GorgonLib",		layer->w/2,40,makecol(230,230,230),-1);
-			textout_centre_ex(layer,font,"This engine is free and open source",		layer->w/2,50,makecol(230,230,230),-1);
-			textout_centre_ex(layer,font,"If you paid for this you were fooled",		layer->w/2,60,makecol(230,230,230),-1);
-			textout_centre_ex(layer,font,"Any comment, sugestion or greetings:",		layer->w/2,70,makecol(230,230,230),-1);
-			textout_centre_ex(layer,font,"aniquilatorbloody@gmail.com",			layer->w/2,80,makecol(230,230,230),-1);
-			textout_centre_ex(layer,font,"Megaman is a trademark of",			layer->w/2,100,makecol(230,230,230),-1);
+			textout_centre_ex(layer,megaFont,"This is a test made with GorgonLib",		layer->w/2,40,makecol(230,230,230),-1);
+			textout_centre_ex(layer,megaFont,"This engine is free and open source",		layer->w/2,50,makecol(230,230,230),-1);
+			textout_centre_ex(layer,megaFont,"If you paid for this you were fooled",	layer->w/2,60,makecol(230,230,230),-1);
+			textout_centre_ex(layer,megaFont,"Any comment, sugestion or greetings:",	layer->w/2,70,makecol(230,230,230),-1);
+			textout_centre_ex(layer,megaFont,"aniquilatorbloody@gmail.com",			layer->w/2,80,makecol(230,230,230),-1);
+			textout_centre_ex(layer,megaFont,"Megaman is a trademark of",			layer->w/2,100,makecol(230,230,230),-1);
 		
-			gorgonShowAnimation(layer,&animationPack.animation[0],&spritePack,NULL,NORMAL,(layer->w-spritePack.sprite[0].image->w)/2,layer->h/2);
+			gorgonShowAnimation(layer,&animationPack.animation[0],&spritePack,NULL,NORMAL,(layer->w-spritePack.sprite[6].image->w)/2,layer->h/2);
 			if(gorgonAnimationFinished(&animationPack.animation[0])) key[control->start]=1;
 			blit(layer,screen,0,0,0,0,layer->w,layer->h);
 			timer--;
@@ -62,24 +101,28 @@ int showLogos(inputControl *control)
 /**
  * função para imprimir o menu principal na tela
  *
- * @author: Cantídio Oliveira Fontes
- * @since: 25/06/2008
- * @final: 25/06/2008
- * @param: inputControl *, ponteiro para a estrutura de controle
- * @return: int a opção escolhida no menu
+ * @author:	Cantídio Oliveira Fontes
+ * @since: 	25/06/2008
+ * @final: 	06/07/2008
+ * @param: 	inputControl *, ponteiro para a estrutura de controle
+ * @return:	int a opção escolhida no menu
  */
 int mainMenu(inputControl *control,gorgonAudio *audio)
 {
 	gorgonSpritePack 	spritePack;
+	gorgonAnimationPack	animationPack;
 	gorgonSound		*change;
 	gorgonSound		*choose;
 	BITMAP 			*layer;
+	FONT			*megaFont;
 	int 			selected=0;
 	gorgonLoadSpritePack(&spritePack,"./resource/intro.spk");
+	gorgonLoadAnimationPack(&animationPack,"./resource/intro.apk");
 	gorgonLoadSound(&change,"./resource/sons/mmse003.wav",audio);
 	gorgonLoadSound(&choose,"./resource/sons/mmse011.wav",audio);
-	layer=create_bitmap(screen->w,screen->h);
 
+	megaFont= load_bitmap_font("./resource/font.pcx",NULL,NULL);
+	layer	= create_bitmap(screen->w,screen->h);
 	if(layer!=NULL)
 	{
 		timer=0;
@@ -89,7 +132,6 @@ int mainMenu(inputControl *control,gorgonAudio *audio)
 		{
 			while(timer>0)
 			{
-				clear(layer);
 				if(key[control->up])
 				{
 					gorgonPlaySound(change,audio,3);
@@ -104,13 +146,24 @@ int mainMenu(inputControl *control,gorgonAudio *audio)
 					else selected=0;
 					key[control->down]=0;
 				}
-				gorgonDrawSpriteByIndex(layer,&spritePack,NULL,7,NORMAL,(layer->w-spritePack.sprite[7].image->w)/2,70);
-				gorgonDrawSpriteByIndex(layer,&spritePack,NULL,8,NORMAL,(layer->w-spritePack.sprite[8].image->w*2),120);
-				textout_ex(layer,font,"Start Game",	110,130,makecol(230,230,230),-1);
-				textout_ex(layer,font,"Options",	110,140,makecol(230,230,230),-1);
-				textout_ex(layer,font,"Credits",	110,150,makecol(230,230,230),-1);
-				textout_ex(layer,font,"Exit",		110,160,makecol(230,230,230),-1);
-				textout_ex(layer,font,">",		103,130 + selected*10,makecol(230,230,230),-1);
+				else if(key[KEY_F10])
+				{
+					takeShot();
+					key[KEY_F10]=0;
+				}
+				clear(layer);
+				gorgonShowAnimation(layer,&animationPack.animation[2],&spritePack,NULL,NORMAL,56,68);
+				gorgonShowAnimation(layer,&animationPack.animation[4],&spritePack,NULL,NORMAL,163,97);
+				gorgonShowAnimation(layer,&animationPack.animation[5],&spritePack,NULL,NORMAL,2,0);
+				gorgonShowAnimation(layer,&animationPack.animation[6],&spritePack,NULL,NORMAL,2,225);
+				gorgonShowAnimation(layer,&animationPack.animation[7],&spritePack,NULL,NORMAL,3,16);
+				gorgonShowAnimation(layer,&animationPack.animation[7],&spritePack,NULL,NORMAL,306,16);
+								
+				textout_ex(layer,megaFont,"Start Game",	110,130,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Options",	110,140,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Credits",	110,150,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Exit",	110,160,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,">",		100,130 + selected*10,makecol(230,230,230),-1);
 				blit(layer,screen,0,0,0,0,layer->w,layer->h);
 				timer--;
 			}
@@ -119,34 +172,127 @@ int mainMenu(inputControl *control,gorgonAudio *audio)
 		wait(1);
 		destroy_bitmap(layer);
 		gorgonDestroySpritePack(&spritePack);
+		gorgonDestroyAnimationPack(&animationPack);
 		gorgonDestroySound(change);
 		gorgonDestroySound(choose);
+		destroy_font(megaFont);
 		return selected;
 	}
 	printf("erro ao alocar memória\n");
 	exit(1);
 }
 /**
- * função que exibe o menu para configuração das teclas usadas no jogo
+ * função que exibe o menu para configuração do som no jogo
  *
- * @author: Cantídio Oliveira Fontes
- * @since: 25/06/2008
- * @final: 25/06/2008
- * @param: inputControl *, ponteiro para a estrutura de controles
- * @return: int 0 se ocorreu erro ou 1 se ocorreu tudo bem
+ * @author:	Cantídio Oliveira Fontes
+ * @since:	04/07/2008
+ * @final:	06/07/2008
+ * @param:	inputControl *, ponteiro para a estrutura de controles
+ * @param:	gorgonAudio *, ponteiro para o sistema sonoro
+ * @return:	int 0 se ocorreu erro ou 1 se ocorreu tudo bem
  */
 int optionMenu(inputControl *control,gorgonAudio *audio)
 {
-	BITMAP 		*layer;
-	gorgonSound	*change;
-	gorgonSound	*choose;
-	int 		selected= 0;
+	gorgonSpritePack	spritePack;
+	gorgonAnimationPack	animationPack;
+	gorgonSound		*change;
+	gorgonSound		*choose;
+	BITMAP 			*layer;
+	FONT			*megaFont;
+	int 			selected= 0;
 	
+	gorgonLoadSpritePack(&spritePack,"./resource/intro.spk");
+	gorgonLoadAnimationPack(&animationPack,"./resource/intro.apk");
 	gorgonLoadSound(&change,"./resource/sons/mmse003.wav",audio);
 	gorgonLoadSound(&choose,"./resource/sons/mmse011.wav",audio);
 
-	key[control->start]=0;
-	layer=create_bitmap(screen->w,screen->h);
+	megaFont		= load_bitmap_font("./resource/font.pcx",NULL,NULL);
+	layer			= create_bitmap(screen->w,screen->h);
+	key[control->start]	= 0;
+	if(layer!=NULL)
+	{
+		timer=0;
+		while(!(key[control->start]))
+		{
+			while(timer>0)
+			{
+				if(key[control->up])
+				{
+					gorgonPlaySound(change,audio,3);
+					if(selected>0) selected--;
+					else selected=2;
+					key[control->up]=0;
+				}
+				else if(key[control->down])
+				{
+					gorgonPlaySound(change,audio,3);
+					if(selected<2) selected++;
+					else selected=0;
+					key[control->down]=0;
+				}
+				else if(key[KEY_F10])
+				{
+					takeShot();
+					key[KEY_F10]=0;
+				}
+				clear(layer);
+				gorgonShowAnimation(layer,&animationPack.animation[5],&spritePack,NULL,NORMAL,2,0);
+				gorgonShowAnimation(layer,&animationPack.animation[6],&spritePack,NULL,NORMAL,2,225);
+				gorgonShowAnimation(layer,&animationPack.animation[7],&spritePack,NULL,NORMAL,3,16);
+				gorgonShowAnimation(layer,&animationPack.animation[7],&spritePack,NULL,NORMAL,306,16);
+				
+				textout_centre_ex(layer,megaFont,"Game Options",	layer->w/2,20,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Configuration",		110,90,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Controls",			110,100,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Sound",			110,110,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Exit",			110,120,makecol(230,230,230),-1);
+				
+				textout_ex(layer,megaFont,">",		80,100 + selected*10,makecol(230,230,230),-1);
+				blit(layer,screen,0,0,0,0,layer->w,layer->h);
+				timer--;
+			}
+		}
+		gorgonPlaySound(choose,audio,3);
+		wait(1);
+		destroy_bitmap(layer);
+		gorgonDestroySpritePack(&spritePack);
+		gorgonDestroyAnimationPack(&animationPack);
+		gorgonDestroySound(change);
+		gorgonDestroySound(choose);
+		destroy_font(megaFont);
+		return selected;
+	}
+	printf("erro ao alocar memória\n");
+	return 0;
+}
+
+/**
+ * função que exibe o menu para configuração das teclas usadas no jogo
+ *
+ * @author: 	Cantídio Oliveira Fontes
+ * @since: 	25/06/2008
+ * @final: 	06/07/2008
+ * @param: 	inputControl *, ponteiro para a estrutura de controles
+ * @return: 	int 0 se ocorreu erro ou 1 se ocorreu tudo bem
+ */
+int controlMenu(inputControl *control,gorgonAudio *audio)
+{
+	gorgonSpritePack	spritePack;
+	gorgonAnimationPack	animationPack;
+	BITMAP 			*layer;
+	FONT			*megaFont;
+	gorgonSound		*change;
+	gorgonSound		*choose;
+	int 			selected= 0;
+	
+	gorgonLoadSpritePack(&spritePack,"./resource/intro.spk");
+	gorgonLoadAnimationPack(&animationPack,"./resource/intro.apk");
+	gorgonLoadSound(&change,"./resource/sons/mmse003.wav",audio);
+	gorgonLoadSound(&choose,"./resource/sons/mmse011.wav",audio);
+
+	megaFont		= load_bitmap_font("./resource/font.pcx",NULL,NULL);
+	layer			= create_bitmap(screen->w,screen->h);
+	key[control->start]	= 0;
 	if(layer!=NULL)
 	{
 		timer=0;
@@ -184,28 +330,39 @@ int optionMenu(inputControl *control,gorgonAudio *audio)
 					}
 					clear_keybuf();
 				}
+				else if(key[KEY_F10])
+				{
+					takeShot();
+					key[KEY_F10]=0;
+				}
 				clear(layer);
-				textout_ex(layer,font,"Up",			50,70,makecol(230,230,230),-1);
-				textout_ex(layer,font,"Down",			50,80,makecol(230,230,230),-1);
-				textout_ex(layer,font,"Left",			50,90,makecol(230,230,230),-1);
-				textout_ex(layer,font,"Right",			50,100,makecol(230,230,230),-1);
-				textout_ex(layer,font,"Shot",			50,110,makecol(230,230,230),-1);
-				textout_ex(layer,font,"Jump",			50,120,makecol(230,230,230),-1);
-				textout_ex(layer,font,"Next Weapon",		50,130,makecol(230,230,230),-1);
-				textout_ex(layer,font,"Previous Weapon",	50,140,makecol(230,230,230),-1);
-				textout_ex(layer,font,"Exit",			50,150,makecol(230,230,230),-1);
+				gorgonShowAnimation(layer,&animationPack.animation[5],&spritePack,NULL,NORMAL,2,0);
+				gorgonShowAnimation(layer,&animationPack.animation[6],&spritePack,NULL,NORMAL,2,225);
+				gorgonShowAnimation(layer,&animationPack.animation[7],&spritePack,NULL,NORMAL,3,16);
+				gorgonShowAnimation(layer,&animationPack.animation[7],&spritePack,NULL,NORMAL,306,16);
+				
+				textout_centre_ex(layer,megaFont,"Control Configuration",	layer->w/2,20,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Up",					50,70,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Down",				50,80,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Left",				50,90,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Right",				50,100,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Shot",				50,110,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Jump",				50,120,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Next Weapon",			50,130,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Previous Weapon",			50,140,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Exit",				50,150,makecol(230,230,230),-1);
 	
-				textprintf_ex(layer,font,240,70,makecol(230,230,230),-1,"%s",scancode_to_name(control->up));
-				textprintf_ex(layer,font,240,80,makecol(230,230,230),-1,"%s",scancode_to_name(control->down));
-				textprintf_ex(layer,font,240,90,makecol(230,230,230),-1,"%s",scancode_to_name(control->left));
-				textprintf_ex(layer,font,240,100,makecol(230,230,230),-1,"%s",scancode_to_name(control->right));
-				textprintf_ex(layer,font,240,110,makecol(230,230,230),-1,"%s",scancode_to_name(control->shot));
-				textprintf_ex(layer,font,240,120,makecol(230,230,230),-1,"%s",scancode_to_name(control->jump));
-				textprintf_ex(layer,font,240,130,makecol(230,230,230),-1,"%s",scancode_to_name(control->weaponF));
-				textprintf_ex(layer,font,240,140,makecol(230,230,230),-1,"%s",scancode_to_name(control->weaponB));
+				textprintf_ex(layer,megaFont,240,70,makecol(230,230,230),-1,"%s",scancode_to_name(control->up));
+				textprintf_ex(layer,megaFont,240,80,makecol(230,230,230),-1,"%s",scancode_to_name(control->down));
+				textprintf_ex(layer,megaFont,240,90,makecol(230,230,230),-1,"%s",scancode_to_name(control->left));
+				textprintf_ex(layer,megaFont,240,100,makecol(230,230,230),-1,"%s",scancode_to_name(control->right));
+				textprintf_ex(layer,megaFont,240,110,makecol(230,230,230),-1,"%s",scancode_to_name(control->shot));
+				textprintf_ex(layer,megaFont,240,120,makecol(230,230,230),-1,"%s",scancode_to_name(control->jump));
+				textprintf_ex(layer,megaFont,240,130,makecol(230,230,230),-1,"%s",scancode_to_name(control->weaponF));
+				textprintf_ex(layer,megaFont,240,140,makecol(230,230,230),-1,"%s",scancode_to_name(control->weaponB));
 		
 
-				textout_ex(layer,font,">",		43,70 + selected*10,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,">",		40,70 + selected*10,makecol(230,230,230),-1);
 				blit(layer,screen,0,0,0,0,layer->w,layer->h);
 				timer--;
 			}
@@ -213,34 +370,225 @@ int optionMenu(inputControl *control,gorgonAudio *audio)
 		gorgonPlaySound(choose,audio,3);
 		wait(1);
 		destroy_bitmap(layer);
+		gorgonDestroySpritePack(&spritePack);
+		gorgonDestroyAnimationPack(&animationPack);
 		gorgonDestroySound(change);
 		gorgonDestroySound(choose);
+		destroy_font(megaFont);
 		return 1;
 	}
 	printf("erro ao alocar memória\n");
 	return 0;
 }
 
+/**
+ * função que exibe o menu para configuração do som no jogo
+ *
+ * @author:	Cantídio Oliveira Fontes
+ * @since:	04/07/2008
+ * @final:	06/07/2008
+ * @param:	inputControl *, ponteiro para a estrutura de controles
+ * @param:	gorgonAudio *, ponteiro para o sistema sonoro
+ * @return:	int 0 se ocorreu erro ou 1 se ocorreu tudo bem
+ */
+int soundMenu(inputControl *control,gorgonAudio *audio)
+{
+	gorgonSpritePack	spritePack;
+	gorgonAnimationPack	animationPack;
+	gorgonSound		*change;
+	gorgonSound		*choose;
+	BITMAP 			*layer;
+	FONT			*megaFont;
+	int 			selected= 0;
+	
+	gorgonLoadSpritePack(&spritePack,"./resource/intro.spk");
+	gorgonLoadAnimationPack(&animationPack,"./resource/intro.apk");
+	gorgonLoadSound(&change,"./resource/sons/mmse003.wav",audio);
+	gorgonLoadSound(&choose,"./resource/sons/mmse011.wav",audio);
+
+	megaFont		= load_bitmap_font("./resource/font.pcx",NULL,NULL);
+	layer			= create_bitmap(screen->w,screen->h);
+	key[control->start]	= 0;
+	if(layer!=NULL)
+	{
+		timer=0;
+		while(!(key[control->start] && selected==6))
+		{
+			while(timer>0)
+			{
+				if(key[control->up])
+				{
+					gorgonPlaySound(change,audio,3);
+					if(selected>0) selected--;
+					else selected=6;
+					key[control->up]=0;
+				}
+				else if(key[control->down])
+				{
+					gorgonPlaySound(change,audio,3);
+					if(selected<6) selected++;
+					else selected=0;
+					key[control->down]=0;
+				}
+				else if(key[control->left])
+				{
+					switch(selected)
+					{
+						case 0:
+							if(audio->music)	audio->music=0;
+							else			audio->music=1;
+							break;
+						case 1:
+							if(audio->voice)	audio->voice=0;
+							else			audio->voice=1;
+							break;
+						case 2:
+							if(audio->effects)	audio->effects=0;
+							else			audio->effects=1;
+							break;
+						case 3:
+							if(audio->musicVolume>0)	audio->musicVolume-=0.01;
+							break;
+						case 4:
+							if(audio->voiceVolume>0)	audio->voiceVolume-=0.01;
+							break;
+						case 5:
+							if(audio->effectsVolume>0)	audio->effectsVolume-=0.01;
+							break;
+					}
+					key[control->left]=0;
+				}
+				else if(key[control->right])
+				{
+					switch(selected)
+					{
+						case 0:
+							if(audio->music)	audio->music=0;
+							else			audio->music=1;
+							break;
+						case 1:
+							if(audio->voice)	audio->voice=0;
+							else			audio->voice=1;
+							break;
+						case 2:
+							if(audio->effects)	audio->effects=0;
+							else			audio->effects=1;
+							break;
+						case 3:
+							if(audio->musicVolume<1)	audio->musicVolume+=0.01;
+							break;
+						case 4:
+							if(audio->voiceVolume<1)	audio->voiceVolume+=0.01;
+							break;
+						case 5:
+							if(audio->effectsVolume<1)	audio->effectsVolume+=0.01;
+							break;
+					}
+					key[control->right]=0;
+				}
+				else if(key[KEY_F10])
+				{
+					takeShot();
+					key[KEY_F10]=0;
+				}
+				clear(layer);
+				gorgonShowAnimation(layer,&animationPack.animation[5],&spritePack,NULL,NORMAL,2,0);
+				gorgonShowAnimation(layer,&animationPack.animation[6],&spritePack,NULL,NORMAL,2,225);
+				gorgonShowAnimation(layer,&animationPack.animation[7],&spritePack,NULL,NORMAL,3,16);
+				gorgonShowAnimation(layer,&animationPack.animation[7],&spritePack,NULL,NORMAL,306,16);
+				
+				textout_centre_ex(layer,megaFont,"Sound Configuration",	layer->w/2,20,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Use Channels",		50,70,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Music",			50,80,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Voice",			50,90,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Effects",			50,100,makecol(230,230,230),-1);
+				
+				textout_ex(layer,megaFont,"Sound Volume",		50,120,makecol(230,230,230),-1);	
+				textout_ex(layer,megaFont,"Music",			50,130,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Voice",			50,140,makecol(230,230,230),-1);
+				textout_ex(layer,megaFont,"Effects",			50,150,makecol(230,230,230),-1);
+				
+				textout_ex(layer,megaFont,"Exit",			50,160,makecol(230,230,230),-1);
+	
+				textprintf_ex(layer,megaFont,240,80,makecol(230,230,230),-1,"%s",(audio->music)		? "Yes" : "No");
+				textprintf_ex(layer,megaFont,240,90,makecol(230,230,230),-1,"%s",(audio->voice)		? "Yes" : "No");
+				textprintf_ex(layer,megaFont,240,100,makecol(230,230,230),-1,"%s",(audio->effects)	? "Yes" : "No");
+			
+				textprintf_ex(layer,megaFont,240,130,makecol(230,230,230),-1,"%d",(int)(audio->musicVolume*100));
+				textprintf_ex(layer,megaFont,240,140,makecol(230,230,230),-1,"%d",(int)(audio->voiceVolume*100));
+				textprintf_ex(layer,megaFont,240,150,makecol(230,230,230),-1,"%d",(int)(audio->effectsVolume*100));
+
+				textout_ex(layer,megaFont,">",		40,((selected<3) ? (80 + selected*10) : (80 + 20 + selected*10)),makecol(230,230,230),-1);
+				blit(layer,screen,0,0,0,0,layer->w,layer->h);
+				timer--;
+			}
+		}
+		gorgonPlaySound(choose,audio,3);
+		wait(1);
+		destroy_bitmap(layer);
+		gorgonDestroySpritePack(&spritePack);
+		gorgonDestroyAnimationPack(&animationPack);
+		gorgonDestroySound(change);
+		gorgonDestroySound(choose);
+		destroy_font(megaFont);
+		return 1;
+	}
+	printf("erro ao alocar memória\n");
+	return 0;
+}
+/**
+ * função que exibe os creditos
+ *
+ * @author: Cantídio Oliveira Fontes
+ * @since: 25/06/2008
+ * @final: 06/07/2008
+ * @param: inputControl *, ponteiro para a estrutura de controles
+ * @return: int 0 se ocorreu erro ou 1 se ocorreu tudo bem
+ */
 void credits(inputControl *control)
 {
-	BITMAP *layer;
-	key[control->start]=0;
-	layer=create_bitmap(screen->w,screen->h);
+	BITMAP	*layer;
+	FONT	*megaFont;
+	
+	megaFont		= load_bitmap_font("./resource/font.pcx",NULL,NULL);
+	layer			= create_bitmap(screen->w,screen->h);
+	key[control->start]	= 0;
 	while(!(key[control->start]))
 	{
+		if(key[KEY_F10])
+		{
+			takeShot();
+			key[KEY_F10]=0;
+		}
 		clear(layer);
-		textout_centre_ex(layer,font,"Credits:"					,layer->w/2,40,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"Engine Programming:"			,layer->w/2,60,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"Cantidio Oliveira Fontes"			,layer->w/2,70,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"aniquilatorbloody@gmail.com"		,layer->w/2,80,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"Sprite Ripping:"				,layer->w/2,100,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"Sprites INC"				,layer->w/2,110,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"www.sprites-inc.co.uk"			,layer->w/2,120,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"Game Sprites, Sounds and Trademark:"	,layer->w/2,140,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"Capcom"					,layer->w/2,150,makecol(230,230,230),-1);
-		textout_centre_ex(layer,font,"www.capcom.com"				,layer->w/2,160,makecol(230,230,230),-1);
+		textout_centre_ex(layer,megaFont,"Credits:"				,layer->w/2,10,makecol(230,230,230),-1);
+		textout_centre_ex(layer,megaFont,"Engine Programming:"			,layer->w/2,30,makecol(230,230,230),-1);
+		textout_centre_ex(layer,megaFont,"Cantidio Oliveira Fontes"		,layer->w/2,40,makecol(230,230,230),-1);
+		textout_centre_ex(layer,megaFont,"aniquilatorbloody@gmail.com"		,layer->w/2,50,makecol(230,230,230),-1);
+		
+		textout_centre_ex(layer,megaFont,"Menu Layout:"				,layer->w/2,70,makecol(230,230,230),-1);
+		textout_centre_ex(layer,megaFont,"Rafael Menezes"			,layer->w/2,80,makecol(230,230,230),-1);
+		textout_centre_ex(layer,megaFont,"rafa.oblong@gmail.com"		,layer->w/2,90,makecol(230,230,230),-1);
+		
+		
+		textout_centre_ex(layer,megaFont,"Sprite Ripping:"			,layer->w/2,110,makecol(230,230,230),-1);
+		textout_centre_ex(layer,megaFont,"Sprites INC"				,layer->w/2,120,makecol(230,230,230),-1);
+		textout_centre_ex(layer,megaFont,"www.sprites-inc.co.uk"		,layer->w/2,130,makecol(230,230,230),-1);
+
+		textout_centre_ex(layer,megaFont,"Music Ripping:"			,layer->w/2,150,makecol(230,230,230),-1);
+		textout_centre_ex(layer,megaFont,"The MegaMan Network"			,layer->w/2,160,makecol(230,230,230),-1);
+		textout_centre_ex(layer,megaFont,"blue-bomber.jvmwriter.org"		,layer->w/2,170,makecol(230,230,230),-1);
+		
+		textout_centre_ex(layer,megaFont,"Megaman and all related characters are"	,layer->w/2,190,makecol(230,230,230),-1);
+		textout_centre_ex(layer,megaFont,"registered trademarks of Capcom"		,layer->w/2,200,makecol(230,230,230),-1);
+		textout_centre_ex(layer,megaFont,"www.capcom.com"				,layer->w/2,210,makecol(230,230,230),-1);
+		textout_centre_ex(layer,megaFont,"This engine is no way related to Capcom"	,layer->w/2,220,makecol(230,230,230),-1);
+		textout_centre_ex(layer,megaFont,"All rights are reserved"			,layer->w/2,230,makecol(230,230,230),-1);
+		
+		
 		
 		blit(layer,screen,0,0,0,0,layer->w,layer->h);
 	}
+	destroy_font(megaFont);
 	destroy_bitmap(layer);
 }

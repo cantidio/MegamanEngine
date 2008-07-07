@@ -23,7 +23,13 @@ void guiDraw(BITMAP *layer,megamanGui *gui,megaman *mega)
 		case bombThower:	gorgonDrawSpriteByIndex(layer,&gui->spritePack,NULL,5,NORMAL,10,25);	break;
 		case fireBlast:	gorgonDrawSpriteByIndex(layer,&gui->spritePack,NULL,0,NORMAL,10,25);	break;
 		case thunderShot:	gorgonDrawSpriteByIndex(layer,&gui->spritePack,NULL,4,NORMAL,10,25);	break;
+		case shadowBlade:	gorgonDrawSpriteByIndex(layer,&gui->spritePack,NULL,20,NORMAL,10,25);	break;
 	}
+}
+
+void guiStatusDraw(BITMAP *layer,megamanGui *gui,megaman *mega)
+{
+
 }
 void destroyGui(megamanGui *gui)
 {
