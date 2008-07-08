@@ -189,6 +189,15 @@ int jackColideMegaman(enemyJack *jack,megaman *mega)
 {
 	if(jack->ative && gorgonAnimationClsn(&jack->animationPack.animation[jack->animationPlaying],jack->x,jack->y,CLSN_RED,jack->direction,&mega->animationPack.animation[mega->animationPlaying],mega->x,mega->y,CLSN_BLUE,mega->direction))
 	{
+		if(debug)
+		{
+			printf("x1: %d\n",mega->animationPack.animation[mega->animationPlaying].frame[mega->animationPack.animation[mega->animationPlaying].frameOn].clsnBlue.x1[0]);
+			printf("y1: %d\n",mega->animationPack.animation[mega->animationPlaying].frame[mega->animationPack.animation[mega->animationPlaying].frameOn].clsnBlue.y1[0]);
+			printf("x2: %d\n",mega->animationPack.animation[mega->animationPlaying].frame[mega->animationPack.animation[mega->animationPlaying].frameOn].clsnBlue.x2[0]);
+			printf("y2: %d\n",mega->animationPack.animation[mega->animationPlaying].frame[mega->animationPack.animation[mega->animationPlaying].frameOn].clsnBlue.y2[0]);
+			printf("largura: %d\n",mega->animationPack.animation[mega->animationPlaying].frame[mega->animationPack.animation[mega->animationPlaying].frameOn].clsnBlue.x2[0]-mega->animationPack.animation[mega->animationPlaying].frame[mega->animationPack.animation[mega->animationPlaying].frameOn].clsnBlue.x1[0]);
+			printf("altura: %d\n",mega->animationPack.animation[mega->animationPlaying].frame[mega->animationPack.animation[mega->animationPlaying].frameOn].clsnBlue.y2[0]-mega->animationPack.animation[mega->animationPlaying].frame[mega->animationPack.animation[mega->animationPlaying].frameOn].clsnBlue.y1[0]);
+		}
 		megamanHit(mega,7,jack->direction,5);
 		return 1;
 	}
