@@ -59,18 +59,20 @@ void wait(short x)
  */
 int showLogos(inputControl *control)
 {
-	BITMAP 			*layer;
+	BITMAP 				*layer;
 	gorgonSpritePack 	spritePack;
 	gorgonAnimationPack	animationPack;
-	FONT			*megaFont;
+	FONT				*megaFont;
 	
 	gorgonLoadSpritePack(&spritePack,"./resource/intro.spk");
 	gorgonLoadAnimationPack(&animationPack,"./resource/intro.apk");
 	
 	megaFont		= load_bitmap_font("./resource/font.pcx",NULL,NULL);
 	layer			= create_bitmap(screen->w,screen->h);
+	readkey();
 	key[control->start]	= 0;
 	timer			= 0;
+	
 	while(!key[control->start] && !key[KEY_ESC])
 	{
 		if(timer>0)

@@ -231,6 +231,18 @@ int weaponColideJack(enemyJack *jack, weapons *weapon)
 		{
 			animation	= weapon->shot[k].animationPlaying;
 			frameOn		= weapon->shot[k].animationPack.animation[animation].frameOn;
+			
+			
+	/*		if
+			(!(
+				(x1 + (gclsn1.x1[i]*mod1x) > x2 + a)		||
+				(y1 + (gclsn1.y1[i]*mod1y) > y2 + mod2y*gclsn2.y2[j] + mod2x*gclsn2.y1[j])		||
+				(x1 + (gclsn1.x2[i]*mod1x) < x2 + b)			||
+				(y1 + (gclsn1.y2[i]*mod1y) < y2 + mod2y*gclsn2.y1[j])
+			))
+				return 1;
+		*/	
+			
 			if(gorgonAnimationClsn(&jack->animationPack.animation[jack->animationPlaying],jack->x,jack->y,CLSN_BLUE,jack->direction,&weapon->shot[k].animationPack.animation[animation],weapon->shot[k].x,weapon->shot[k].y,CLSN_RED,weapon->shot[k].direction))
 			{
 				return 1;
